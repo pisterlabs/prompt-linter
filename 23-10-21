@@ -1,0 +1,26 @@
+# The case for linting and unit testing prompts
+
+The rise of capabilities expressed by large language models has been quickly followed by the integration of the same complex systems into application level logic.
+Algorithms, programs, systems, and companies are built around structured prompting to black box models where the majority of the design and implementation lies not in crafting complex coordinated systems but in capturing and quantifying the `agent model`. 
+The standard way to shape a closed language model is to prime it for a specific business task with a tailored prompt, often initially handwritten by a human, prior to being self-optimized through repeated testing with an LLM [OPRO].
+The prompts co-evolve with the codebase and business, taking shape over the course of project life. They exist as artifacts which must be maintained and monitored, just as the traditional code files might be.
+When a new feature request is made, or a bug is discovered, prompts change and developers are provided only with the assurance of a git-diff between two text files, or worse two strings, with no guarantees from the system otherwise.
+Some systems, like [OPRO] mention, run a prompt through many test case examples to prove the effectiveness of the prompt. Developers can therefore live-test the prompt files to verify that the behavior is correct for the system, but often a prompt will exist as part of a larger chain, making test cases complex and leaving more to chance than guarantee. What testing can be done here we consider to be integration testing. These assertions validate that the business logic of the prompt is correct. These tests are important but often costly and slow to test, making them impractical for running at every minor change.
+Missing from the ecosystem is a proper framework for unit testing prompts within a codebase. We present in this work two contributions, first an analysis from anecdotal experience as well as active open source repositories of common pitfalls in prompting, and second the first to our knowledge tool for unit testing a prompt.
+Many of the issues "discovered" here may look familiar to those close to database systems. We have dealt with many of these problems before when handling SQL integrations during application layer development. This is not surprising as the root cause is turning strings into code, and running `eval`. The further we can get from concatenating strings and the closer we can get to prepared statements, the safer we will be.
+
+## Common pitfalls and their unit tests
+- typos: perhaps the simplest possible mistake in a prompt is a misspelling. A prompt is typically stored in a text format with little to no proper parsing. Unlike the majority of modern IDEs which assist developers in flagging potential errors, there is not a corresponding tool for flagging typing mistakes in a string or text file. (Not including GDocs and MSWord.)
+    - typos in variable names: 
+- extra/missing variables: 
+- not matching semantic rules: be concise
+- prompt injection: allowing direct user input without checking the input first
+- not providing examples
+- not validating length of prompt before sending
+- not setting an output format
+- assertions on input text length to variable (from input)
+
+static checking, tree-sitter, ast
+
+
+projects: [PromptTemplate:langchain], [guidance], [llama-index]
