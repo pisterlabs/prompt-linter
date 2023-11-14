@@ -1,0 +1,23 @@
+openai_api_key=<enter your key>
+from langchain.llms import OpenAI
+from langchain.document_loaders import HNLoader
+from langchain.llms import OpenAI
+from langchain import PromptTemplate
+
+llm = OpenAI(model_name="text-davinci-003", openai_api_key=openai_api_key)
+
+loader = HNLoader("https://docs.aws.amazon.com/sagemaker/latest/dg/jumpstart-solutions.html")
+data = loader.load()
+
+query_template = """
+Find the clickable links relevant to {use_case} from {data} and display the results as links and display them as bullet points
+"""
+
+query_prompt = PromptTemplate(
+    input_variables=["use_case","data"],
+    template=query_template,
+)
+
+final_query_prompt = query_prompt.format(use_case="Predictive maintenance for vehicle fleets",data=data)
+
+llm(final_query_prompt)
