@@ -1,7 +1,5 @@
 # Parsing All Repo Files to collect Prompts
-# =========================================
 
-[x] [parse_data/README.md](parse_data/README.md)
 Dir notes:
 - /.build and ./vendor contains tree-sitter dependencies
 - ./flair_corpus and prompt_classification.csv contain data to train the prompt classifiers
