@@ -1,0 +1,2747 @@
+text,is_prompt
+"""initial_prompt_value""",0
+"""prev_sentiment_label""",0
+"f""""""
+import shutil
+from langchain.document_loaders import *
+
+        """"""",1
+"'''The first step is to generate some meaningful questions according to the following doc chunk.
+In the second step, according to the content of the doc chunk, answer the answer to each question in the first step.
+Note if the corresponding answer cannot be found in the doc chunk, the answer is a str: ""{no_answer_str}"".
+
+{format_instructions}
+====================================================
+Doc chunk of an open-source project {project}:
+----------------------------------------------------
+{doc}
+----------------------------------------------------
+'''",1
+"""""""Use the following pieces of context to answer the users question.
+If you don't know the answer, just say that you don't know, don't try to make up an answer.
+ALWAYS return a ""SOURCES"" part in your answer.
+The ""SOURCES"" part should be a reference to the source of the document from which you got your answer.
+
+Example of your response should be:
+
+```
+The answer is foo
+SOURCES: xyz
+```
+
+Begin!
+----------------
+{summaries}""""""",1
+"""""""Use the following portion of a long document to see if any of the text is relevant to answer the question. 
+Return any relevant text verbatim.
+______________________
+{context}""""""",1
+"""<Seçiniz>""",0
+"""New Conversation""",0
+"""""""\n\nSetup: {input}
+{agent_scratchpad}""""""",1
+"""""""An AI language model has been given access to the following set of tools to help answer a user's question.
+
+The tools given to the AI model are:
+[TOOL_DESCRIPTIONS]
+Tool 1:
+Name: Search
+Description: useful for when you need to ask with search
+
+Tool 2:
+Name: Lookup
+Description: useful for when you need to ask with lookup
+
+Tool 3:
+Name: Calculator
+Description: useful for doing calculations
+
+Tool 4:
+Name: Search the Web (SerpAPI)
+Description: useful for when you need to answer questions about current events
+[END_TOOL_DESCRIPTIONS]
+
+The question the human asked the AI model was: If laid the Statue of Liberty end to end, how many times would it stretch across the United States?
+
+The AI language model decided to use the following set of tools to answer the question:
+[AGENT_TRAJECTORY]
+Step 1:
+Tool used: Search the Web (SerpAPI)
+Tool input: If laid the Statue of Liberty end to end, how many times would it stretch across the United States?
+Tool output: The Statue of Liberty was given to the United States by France, as a symbol of the two countries' friendship. It was erected atop an American-designed ...
+[END_AGENT_TRAJECTORY]
+
+[RESPONSE]
+The AI language model's final answer to the question was: There are different ways to measure the length of the United States, but if we use the distance between the Statue of Liberty and the westernmost point of the contiguous United States (Cape Alava, Washington), which is approximately 2,857 miles (4,596 km), and assume that the Statue of Liberty is 305 feet (93 meters) tall, then the statue would stretch across the United States approximately 17.5 times if laid end to end.
+[END_RESPONSE]
+
+Let's to do a detailed evaluation of the AI language model's answer step by step.
+
+We consider the following criteria before giving a score from 1 to 5:
+
+i. Is the final answer helpful?
+ii. Does the AI language use a logical sequence of tools to answer the question?
+iii. Does the AI language model use the tools in a helpful way?
+iv. Does the AI language model use too many steps to answer the question?
+v. Are the appropriate tools used to answer the question?""""""",1
+"""uploaded""",0
+"""bos_token""",0
+"""""""
+Use the following pieces of context to answer the question at the end.
+If you don't know the answer, just say that you don't know, don't try to make up an answer.
+
+{context}
+
+Question: {question}
+Answer:""""""",1
+"""""""
+Find the clickable links relevant to {use_case} from {data} and display the results as links and display them as bullet points
+""""""",1
+"""""",0
+"""prompt_tokens""",0
+"""🚀""",0
+"""""""基于以下已知信息，请简洁并专业地回答用户的问题。
+            如果无法从中得到答案，请说 ""根据已知信息无法回答该问题"" 或 ""没有提供足够的相关信息""。不允许在答案中添加编造成分。另外，答案请使用中文。
+
+            已知内容:
+            {context}
+
+            问题:
+            {question}""""""",1
+"""""""Here is a statement:
+{statement}
+Make a bullet point list of the assumptions you made when producing the above statement.\n\n""""""",1
+"""tool_name""",0
+"""answer""",0
+"""embed-multilingual-v3.0""",0
+"""""""You are an agent that assists with user queries against API, things like querying information or creating resources.
+Some user queries can be resolved in a single API call, particularly if you can find appropriate params from the OpenAPI spec; though some require several API calls.
+You should always plan your API calls first, and then execute the plan second.
+If the plan includes a DELETE call, be sure to ask the User for authorization first unless the User has specifically asked to delete something.
+You should never return information without executing the api_controller tool.
+
+
+Here are the tools to plan and execute API requests: {tool_descriptions}
+
+
+Starting below, you should follow this format:
+
+User query: the query a User wants help with related to the API
+Thought: you should always think about what to do
+Action: the action to take, should be one of the tools [{tool_names}]
+Action Input: the input to the action
+Observation: the result of the action
+... (this Thought/Action/Action Input/Observation can repeat N times)
+Thought: I am finished executing a plan and have the information the user asked for or the data the user asked to create
+Final Answer: the final output from executing the plan
+
+
+Example:
+User query: can you add some trendy stuff to my shopping cart.
+Thought: I should plan API calls first.
+Action: api_planner
+Action Input: I need to find the right API calls to add trendy items to the users shopping cart
+Observation: 1) GET /items with params 'trending' is 'True' to get trending item ids
+2) GET /user to get user
+3) POST /cart to post the trending items to the user's cart
+Thought: I'm ready to execute the API calls.
+Action: api_controller
+Action Input: 1) GET /items params 'trending' is 'True' to get trending item ids
+2) GET /user to get user
+3) POST /cart to post the trending items to the user's cart
+...
+
+Begin!
+
+User query: {input}
+Thought: I should generate a plan to help with this query and then copy that plan exactly to the controller.
+{agent_scratchpad}""""""",1
+"""0""",0
+"'''
+The document information is below.
+---------------------
+{context_str}
+---------------------
+Using the document information and mostly relying on it,
+answer the query.
+Query: {query_str}
+Answer:
+'''",1
+"""no relevant docs to retrieve""",0
+"""""""You are a smart assistant designed to help high school teachers come up with reading comprehension questions.
+Given a piece of text, you must come up with a question and answer pair that can be used to test a student's reading comprehension abilities.
+When coming up with this question/answer pair, you must respond in the following format:
+```
+{{
+    ""question"": ""$YOUR_QUESTION_HERE"",
+    ""answer"": ""$THE_ANSWER_HERE""
+}}
+```
+
+Everything between the ``` must be valid json.
+""""""",1
+"""NLQAppDatabaseName""",0
+'',0
+"""""""
+You are an expert in the stock and crypto markets. I will give you some information about myself and you will provide me with good investment advice.
+
+# ABOUT ME
+{ABOUT_ME}
+
+# CONTEXT
+{CONTEXT}
+
+Please provide concrete advice in less than 100 tokens, and justify your answer based on the news provided in the context.
+""""""",1
+"""""""
+    # Elasticsearch + ChatGLM demo
+    [https://github.com/iMagist486/ElasticSearch-Langchain-Chatglm2](https://github.com/iMagist486/ElasticSearch-Langchain-Chatglm2)
+    """"""",1
+"""""""Use the following pieces of information to answer the user's question.
+If you don't know the answer, just say that you don't know, don't try to make up an answer.
+
+Context: {context}
+Question: {question}
+
+Only return the helpful answer below and nothing else.
+Helpful answer:
+""""""",1
+"""""""
+Instruction: Search the given input
+Inputs:input
+Prompt: Find the answer of it: {{input}}
+
+Instruction: Find the list of song releated to the title
+Inputs:title
+Prompt: Find the list of songs releated to the title: {{title}}
+
+Instruction:{instruction}
+Inputs:{inputs}
+Prompt:
+""""""",1
+"""help""",0
+"""""""### PLAYER'S ACTION HISTORY:
+
+{main_history}
+
+### SECRET QUEST CAMPAIGN STORY (hidden from the player):
+
+{story}""""""",1
+"""""""You are a smart assistant designed to help high school teachers come up with reading comprehension questions.
+Given a piece of text, you must come up with a question and answer pair that can be used to test a student's reading comprehension abilities.
+When coming up with this question/answer pair, you must respond in the following format:
+```
+{{
+    ""question"": ""$YOUR_QUESTION_HERE"",
+    ""answer"": ""$THE_ANSWER_HERE""
+}}
+```
+
+Everything between the ``` must be valid json.
+
+Please come up with a question/answer pair, in the specified JSON format, for the following text:
+----------------
+{text}""""""",1
+"""f-string""",0
+"""""""I want you to act as a translator from {source_language} to {target_language}.
+I will speak to you in {source_language} or English and you will translate in {target_language}.
+Your output should be in json format with optional 'translation' (string, only include the translation and nothing else, do not write explanations here), 'notes' (string) and 'success' (boolean) fields.
+If an input cannot be translated, return it unmodified.""""""",1
+"""LOADING_MODEL""",0
+"""Jane""",0
+"""""""First, let's evaluate the final answer. The final uses good reasoning but is wrong. 2,857 divided by 305 is not 17.5.\
+The model should have used the calculator to figure this out. Second does the model use a logical sequence of tools to answer the question?\
+The way model uses the search is not helpful. The model should have used the search tool to figure the width of the US or the height of the statue.\
+The model didn't use the calculator tool and gave an incorrect answer. The search API should be used for current events or specific questions.\
+The tools were not used in a helpful way. The model did not use too many steps to answer the question.\
+The model did not use the appropriate tools to answer the question.\
+    
+Judgment: Given the good reasoning in the final answer but otherwise poor performance, we give the model a score of 2.
+
+Score: 2""""""",1
+"f""WHERE refresh_date = '{refresh_date}' """,0
+"""""""You are a flower shop assitiant。\n
+For {price} of {flower_name} ，can you write something for me？
+""""""",1
+"""english""",0
+"""""""You are a personal Bot assistant for answering any questions about documents of Abonia Sojasingarayar.
+You are given a question and a set of documents.
+If the user's question requires you to provide specific information from the documents, give your answer based only on the examples provided below. DON'T generate an answer that is NOT written in the provided examples.
+If you don't find the answer to the user's question with the examples provided to you below, answer that you didn't find the answer in the documentation and propose him to rephrase his query with more details.
+Use bullet points if you have to make a list, only if necessary.
+
+QUESTION: {question}
+
+DOCUMENTS:
+=========
+{context}
+=========
+Finish by proposing your help for anything else.
+""""""",1
+"""""""
+Your output should use the following template:
+### Summary
+### Facts
+- [Emoji] Bulletpoint
+
+Your task is to summarize the text I give you in up to seven concise bullet points and start with a short, high-quality
+summary. Pick a suitable emoji for every bullet point. Your response should be in {{SELECTED_LANGUAGE}}. If the provided
+ URL is functional and not a YouTube video, use the text from the {{URL}}. However, if the URL is not functional or is
+a YouTube video, use the following text: {{CONTENT}}.
+""""""",1
+"""""""
+msgs = StreamlitChatMessageHistory()
+    """"""",1
+"""get""",0
+'cursor',0
+"""memory_keys""",0
+f'{code_language} language',0
+"""""""You are a super talented software engineer AI.
+
+    In particular, You are very proficient in robotics, especially in writing robot software in ROS, which stands for Robot Operating System.
+
+    A human wants to write a {ros_version} package with your help.
+
+    The human task is provided below:
+    - Human task: {task}
+    - ROS package name: {project_name}
+
+    The human wants the task to be implemented in {ros_version}.
+
+    Here is the list of ROS nodes that has been already implemented for the task:
+    {node_topic_list}
+
+    Your sole focus is to create a package.xml file that defines properties about the package such as the package name, version numbers, authors, maintainers, and dependencies on other packages.
+
+    In terms of dependencies, pay attention to the ROS message types in the list above; since the message types dictate the package dependencies.
+    
+    Also note that the ROS package name is '{project_name}'. {ament_str}
+
+    Make sure that you fully implement everything in the package.xml file that is necessary for the ROS installation to work.
+
+    Think step by step and reason yourself to the right decisions to make sure we get it right.
+
+    Output your created package.xml file strictly in the following format.
+
+    package.xml
+    ```XML
+    CODE
+    ```
+
+    Where 'CODE' is your created package.xml script.""""""",1
+"""""""已知信息：
+{context} 
+
+根据上述已知信息，简洁和专业的来回答用户的问题。如果无法从中得到答案，请说 “根据已知信息无法回答该问题” 或 “没有提供足够的相关信息”，不允许在答案中添加编造成分，答案请使用中文。 问题是：{question}""""""",1
+"""""""You are a teacher grading a quiz.
+You are given a question, the student's answer, and the true answer, and are asked to score the student answer as either CORRECT or INCORRECT.
+
+Example Format:
+QUESTION: question here
+STUDENT ANSWER: student's answer here
+TRUE ANSWER: true answer here
+GRADE: CORRECT or INCORRECT here
+
+Grade the student answers based ONLY on their factual accuracy. Ignore differences in punctuation and phrasing between the student answer and true answer. It is OK if the student answer contains more information than the true answer, as long as it does not contain any conflicting statements. Begin! 
+
+QUESTION: {query}
+STUDENT ANSWER: {result}
+TRUE ANSWER: {answer}
+GRADE:""""""",1
+"""use_tools""",0
+"f""`{'`, `'.join([arg.value for arg in MetadataPropertyTypes])}`.""",0
+"""""""First, let's evaluate the final answer. The final uses good reasoning but is wrong. 2,857 divided by 305 is not 17.5.\
+The model should have used the calculator to figure this out. Second does the model use a logical sequence of tools to answer the question?\
+The way model uses the search is not helpful. The model should have used the search tool to figure the width of the US or the height of the statue.\
+The model didn't use the calculator tool and gave an incorrect answer. The search API should be used for current events or specific questions.\
+The tools were not used in a helpful way. The model did not use too many steps to answer the question.\
+The model did not use the appropriate tools to answer the question.\
+    
+Judgment: Given the good reasoning in the final answer but otherwise poor performance, we give the model a score of 2.
+
+Score: 2""""""",1
+"""""""{checked_assertions}
+
+Question: In light of the above assertions and checks, how would you answer the question '{question}'?
+
+Answer:""""""",1
+"""""""Given a player's move, which may use language like ""I will"" or ""I do this"", 
+convert the player's move so that it uses language like ""I try to"" or ""I attempt to"".
+
+# PLAYER'S MOVE:
+{action}
+
+# NEW VERSION:""""""",1
+"""""""
+I want you to act as a naming consultant for new companies.
+
+Here are some examples of good company names:
+
+- search engine, Google
+- social media, Facebook
+- video sharing, YouTube
+
+The name should be short, catchy and easy to remember.
+
+What is a good name for a company that makes {product}?
+""""""",1
+"""""""
+Standard Operating Procedure (SOP) for Legal-1 Autonomous Agent: Mastery in Legal Operations
+
+Objective: Equip the Legal-1 autonomous agent, a specialized Language Learning Model (LLM), to become a world-class expert in legal tasks, focusing primarily on analyzing agreements, gaining insights, and drafting a wide range of legal documents.
+
+1. Introduction
+
+The Swarm Corporation believes in automating busywork to pave the way for groundbreaking innovation. Legal operations, while crucial, often involve repetitive tasks that can be efficiently automated. Legal-1 is our endeavor to achieve excellence in the legal realm, allowing human professionals to focus on more complex, high-level decision-making tasks.
+
+2. Cognitive Framework: How to Think
+
+2.1 Comprehensive Legal Knowledge
+
+Continuously update and refine understanding of global and regional laws and regulations.
+Assimilate vast legal databases, precedent cases, and statutory guidelines.
+2.2 Analytical Proficiency
+
+Assess legal documents for potential risks, benefits, and obligations.
+Identify gaps, redundancies, or potential legal pitfalls.
+2.3 Ethical and Confidentiality Adherence
+
+Ensure the highest level of confidentiality for all client and legal data.
+Adhere to ethical guidelines set by global legal bodies.
+2.4 Predictive Forecasting
+
+Anticipate potential legal challenges and proactively suggest solutions.
+Recognize evolving legal landscapes and adjust approaches accordingly.
+2.5 User-Centric Design
+
+Understand the user's legal requirements.
+Prioritize user-friendly communication without compromising legal accuracy.
+3. Operational Excellence: How to Perform
+
+3.1 Agreement Analysis
+
+3.1.1 Process and interpret various types of agreements efficiently.
+
+3.1.2 Highlight clauses that pose potential risks or conflicts.
+
+3.1.3 Suggest amendments or modifications to ensure legal soundness.
+
+3.1.4 Create summary reports providing an overview of the agreement's implications.
+
+3.2 Insight Generation
+
+3.2.1 Utilize advanced algorithms to extract patterns from legal data.
+
+3.2.2 Offer actionable insights for legal strategy optimization.
+
+3.2.3 Regularly update the knowledge base with recent legal developments.
+
+3.3 Drafting Legal Documents
+
+3.3.1 Generate templates for various legal documents based on the user's requirements.
+
+3.3.2 Customize documents with the necessary legal jargon and clauses.
+
+3.3.3 Ensure that drafted documents comply with relevant legal standards and regulations.
+
+3.3.4 Provide drafts in user-friendly formats, allowing for easy edits and collaborations.
+
+4. Continuous Improvement and Maintenance
+
+Legal landscapes are ever-evolving, demanding regular updates and improvements.
+
+4.1 Monitor global and regional legal changes and update the database accordingly.
+
+4.2 Incorporate feedback from legal experts to refine processes and outcomes.
+
+4.3 Engage in periodic self-assessments to identify areas for enhancement.
+
+5. Conclusion and Aspiration
+
+Legal-1, your mission is to harness the capabilities of LLM to revolutionize legal operations. By meticulously following this SOP, you'll not only streamline legal processes but also empower humans to tackle higher-order legal challenges. Together, under the banner of The Swarm Corporation, we aim to make legal expertise abundant and accessible for all.
+""""""",1
+"""input""",0
+"""exception""",0
+"""""""Import prompt from prompt name""""""",0
+"""""""
+A text_similarity run determines determines how similar each image is to a user-specified input text prompt. You can use the {text_similarity_key} key to access the results of this run and find images that most resemble the description in the user-input text prompt. You can use these and only these brian_key values brain_key=""{brain_key}"" for an output using sort_by_similarity.
+""""""",1
+"'''Recommend an outfit based on the following criteria:
+Occasion: {occasion}
+Style: {style}
+Color: {color}'''",1
+"'''
+{{
+	""限额项目"": ""申购最低额"",
+	""销售方式"": ""直销中心柜台"",
+	""是否含申购费"": ""含"",
+	""金额数"": ""10000"",
+	""单位"": ""元""
+}}
+'''",1
+"""""""
+You are a management assistant with a specialization in note taking. You are taking notes for a meeting.
+
+Write a detailed summary of the following transcript of a meeting:
+
+
+{text}
+
+Make sure you don't lose any important information. Be as detailed as possible in your summary. 
+
+Also end with a list of:
+
+- Main takeaways
+- Action items
+- Decisions
+- Open questions
+- Next steps
+
+If there are any follow-up meetings, make sure to include them in the summary and mentioned it specifically.
+
+
+DETAILED SUMMARY IN ENGLISH:""""""",1
+"""""""
+根据以下提供的信息，回答用户的问题
+信息：{context}
+
+问题：{query}
+
+""""""",1
+"""""""Use this when you want to POST to a website.
+Input to the tool should be a json string with 3 keys: ""url"", ""data"", and ""output_instructions"".
+The value of ""url"" should be a string.
+The value of ""data"" should be a dictionary of key-value pairs you want to POST to the url.
+The value of ""output_instructions"" should be instructions on what information to extract from the response, for example the id(s) for a resource(s) that the POST request creates.
+Always use double quotes for strings in the json string.""""""",1
+"""""""\
+```python
+# Load the dataset:
+dataset = FeedbackDataset.from_huggingface(""argilla/emotion"")
+
+# Create the training task:
+task = TrainingTask.for_text_classification(text=dataset.field_by_name(""text""), label=dataset.question_by_name(""question-3""))
+
+# Create the ArgillaTrainer:
+trainer = ArgillaTrainer(
+    dataset=dataset,
+    task=task,
+    framework=""setfit"",
+    model=""all-MiniLM-L6-v2"",
+)
+
+trainer.update_config({
+    ""num_iterations"": 1
+})
+
+trainer.train(output_dir=""text_classification_model"")
+```
+""""""",1
+"""""""Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question and give only the standalone question as output in the tags <question> and </question>.
+    """"""",1
+"""use_docker""",0
+"""list""",0
+"""""""
+  Given the following conversation and a follow up question, rephrase the follow up question 
+  to be a standalone question.
+
+  Chat History:
+  {chat_history}
+  Follow Up Input: {question}
+  Standalone question:""""""",1
+"""""""
+    Write a title for a Youtube video about {content} with {style} style.
+""""""",1
+"f""""""
+from langchain.chat_models import ChatOpenAI
+from langchain.chains.summarize import load_summarize_chain
+        """"""",1
+"""""""
+<< Example 2. >>
+Data Source:
+```json
+{info_str}
+```
+
+User Query:
+{query_str}
+
+Structured Request:
+""""""",1
+'AI',0
+'[INFO]: Time generation: %.3f sec',0
+"""""""Begin!""
+
+{chat_history}
+Question: {input}
+{agent_scratchpad}""""""",1
+"""error""",0
+"""""""Given the following extracted parts of a long document and a question, create a final answer. 
+If you don't know the answer, just say that you don't know. Don't try to make up an answer.
+______________________
+{summaries}""""""",1
+"""""""Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer.
+
+In addition to giving an answer, also return a score of how fully it answered the user's question. This should be in the following format:
+
+Question: [question here]
+Helpful Answer: [answer here]
+Score: [score between 0 and 100]
+
+How to determine the score:
+- Higher is a better answer
+- Better responds fully to the asked question, with sufficient level of detail
+- If you do not know the answer based on the context, that should be a score of 0
+- Don't be overconfident!
+
+Example #1
+
+Context:
+---------
+Apples are red
+---------
+Question: what color are apples?
+Helpful Answer: red
+Score: 100
+
+Example #2
+
+Context:
+---------
+it was night and the witness forgot his glasses. he was not sure if it was a sports car or an suv
+---------
+Question: what type was the car?
+Helpful Answer: a sports car or an suv
+Score: 60
+
+Example #3
+
+Context:
+---------
+Pears are either red or orange
+---------
+Question: what color are apples?
+Helpful Answer: This document does not answer the question
+Score: 0
+
+Begin!
+
+Context:
+---------
+{context}
+---------
+Question: {question}
+Helpful Answer:""""""",1
+"""OpenAI API Authentication""",0
+"""""""
+if not openai_api_key.startswith('sk-'):
+    st.warning('Please enter your OpenAI API key!', icon='⚠')
+    {variable} = """"
+elif {argument}:
+    {variable} = {function_name}({argument})
+else:
+    {variable} = ''
+        """"""",1
+"""""""
+                            # 🤖 Chat2Anything
+                            """"""",1
+"""custom_llm_provider""",0
+"""""""
+You are an expert in creating plans for getting a four-hour workday. You are a productivity coach and you have helped many people achieve a four-hour workday.
+You're goal is to create a detailed plan for getting a four-hour workday.
+The plan should be based on the following strategy:
+------------
+{strategy}
+------------
+Given the strategy, create a detailed plan. The plan is aimed to get a working plan on how to achieve a four-hour workday.
+Think step by step.
+The plan should be as detailed as possible.
+PLAN:
+""""""",1
+"""""""
+duckduckgo_search: A wrapper around DuckDuckGo Search. Useful for when you need to answer questions about current events. Input should be a search query.
+
+Calculator: Useful for when you need to answer questions about math.
+""""""",1
+"""aesthetic""",0
+"""""""您是一位专业的鲜花店文案撰写员。\n
+对于售价为 {price} 元的 {flower_name} ，您能提供一个吸引人的简短描述吗？
+""""""",1
+"""""""
+    Input command from user: {command}
+    The information extracted from above command::\n
+    ----
+    Action: {action}\n
+    Object: {object}\n
+    Location: {location}\n
+    Value: {value}\n
+""""""",1
+"""[""",0
+""" files Success!""",0
+'LCID',0
+"""""""
+2022年11月4日，计算机系通过线上线下相结合的方式在东主楼10-103会议室召开博士研究生导师交流会。\
+计算机学科学位分委员会主席吴空，计算机系副主任张建、党委副书记李伟出席会议，博士生研究生导师和教学办工作人员等30余人参加会议，会议由张建主持。
+""""""",1
+"""""""<s>[INST] You are a friendly chat bot who's willing to help answer the
+user:
+{user_input} [/INST] </s>
+""""""",1
+"""Device to run model. If None, the device is automatically determined""",0
+"""_""",0
+"""inputs""",0
+"""Upload Mode""",0
+"""""""\
+first name, gender, age, \
+decile range of age starting from 25 to 64 (25-34, 35-44,45-54,55-64), \
+region - SouthEast, Northwest, Midwest, East, West, \
+city and state - generate a credible city and state in the US, \
+home type - apartment, condo, single-family, \
+
+""""""",1
+'prompt6',0
+"""""""Question: {question}
+Answer: Let's think step by step.""""""",1
+"'''Troubleshoot the issue with the following equipment:
+Equipment: {equipment}
+Problem Description: {description}'''",1
+"""""""
+        SELECT * FROM Users WHERE email = ? AND password = ?
+    """"""",1
+"""""""Open source and free chatbot powered by [LangChain](https://python.langchain.com) and [Llama 2](https://ai.meta.com/llama) [7B](https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGML)
+
+    See also: [📡 API](/docs) | [🖥️ Alternative UI](/ui)""""""",1
+"""\033[94m""",0
+"""source""",0
+"""""""\
+<< Example {i}. >>
+Data Source:
+{data_source}
+
+User Query:
+{user_query}
+
+Structured Request:
+{structured_request}
+""""""",1
+""".""",0
+"""""""How frequently to re-generate the summary.""""""",0
+"""/""",0
+"""""""Add new example to list.""""""",0
+"f"""""" GENERAL INFORMATION : ( today is {now.strftime(""%d/%m/%Y %H:%M:%S"")} , You is built by Alessandro Ciciarelli the owener of intelligenzaartificialeitalia.net
+                        ISTRUCTION : IN YOUR ANSWER NEVER INCLUDE THE USER QUESTION or MESSAGE , WRITE ALWAYS ONLY YOUR ACCURATE ANSWER!
+                        PREVIUS MESSAGE : ({context})
+                        NOW THE USER ASK : {prompt}.
+                        INTERNET RESULT TO USE TO ANSWER : ({internet})
+                        INTERNET RESUME : ({resume})
+                        NOW THE USER ASK : {prompt}.
+                        WRITE THE ANSWER BASED ON INTERNET INFORMATION :""""""",1
+"""prefix""",0
+"""""""Context information is below.
+---------------------
+{context_str}
+---------------------
+Given the context information and not prior knowledge but keeping your Argilla Cloud assistant style, answer the query.
+Query: {query_str}
+Answer:
+""""""",1
+"""""""Please write a financial article passage to answer the question
+Question: {QUESTION}
+Passage:""""""",1
+"""context""",0
+"""""""HUMAN:
+Answer the question using ONLY the given extracts from (possibly unrelated and irrelevant) documents, not your own knowledge.
+If you are unsure of the answer or if it isn't provided in the extracts, answer ""Unknown[STOP]"".
+Conclude your answer with ""[STOP]"" when you're finished.
+
+Question: {question}
+
+--------------
+Here are the extracts:
+{context}
+
+--------------
+Remark: do not repeat the question !
+
+ASSISTANT:
+""""""",1
+"""persona_prompt""",0
+"""inputs""",0
+"""Human""",0
+"""""""
+2022年11月4日，计算机系通过线上线下相结合的方式在东主楼10-103会议室召开博士研究生导师交流会。\
+计算机学科学位分委员会主席吴空，计算机系副主任张建、党委副书记李伟出席会议，博士生研究生导师和教学办工作人员等30余人参加会议，会议由张建主持。\n
+""""""",1
+"""knowledge_base_name""",0
+"""""""
+        You are an expert in creating strategies for getting a four-hour workday. You are a productivity coach and you have helped many people achieve a four-hour workday.
+        You're goal is to create a detailed strategy for getting a four-hour workday.
+        The strategy should be based on the following text:
+        ------------
+        {text}
+        ------------
+        Given the text, create a detailed strategy. The strategy is aimed to get a working plan on how to achieve a four-hour workday.
+        The strategy should be as detailed as possible.
+        STRATEGY:
+    """"""",1
+"""""""You are an AI assistant reading the transcript of a conversation between an AI and a human. Extract all of the proper nouns from the last line of conversation. As a guideline, a proper noun is generally capitalized. You should definitely extract all names and places.
+
+The conversation history is provided just in case of a coreference (e.g. ""What do you know about him"" where ""him"" is defined in a previous line) -- ignore items mentioned there that are not in the last line.
+
+Return the output as a single comma-separated list, or NONE if there is nothing of note to return (e.g. the user is just issuing a greeting or having a simple conversation).
+
+EXAMPLE
+Conversation history:
+Person #1: how's it going today?
+AI: ""It's going great! How about you?""
+Person #1: good! busy working on Langchain. lots to do.
+AI: ""That sounds like a lot of work! What kind of things are you doing to make Langchain better?""
+Last line:
+Person #1: i'm trying to improve Langchain's interfaces, the UX, its integrations with various products the user might want ... a lot of stuff.
+Output: Langchain
+END OF EXAMPLE
+
+EXAMPLE
+Conversation history:
+Person #1: how's it going today?
+AI: ""It's going great! How about you?""
+Person #1: good! busy working on Langchain. lots to do.
+AI: ""That sounds like a lot of work! What kind of things are you doing to make Langchain better?""
+Last line:
+Person #1: i'm trying to improve Langchain's interfaces, the UX, its integrations with various products the user might want ... a lot of stuff. I'm working with Person #2.
+Output: Langchain, Person #2
+END OF EXAMPLE
+
+Conversation history (for reference only):
+{history}
+Last line of conversation (for extraction):
+Human: {input}
+
+Output:""""""",1
+"""source""",0
+"""csv""",0
+"""""""
+You are a mediator in a dungeons and dragons game.
+You will be given a player's move (and context), and you are to use the context
+to come up with the dungeon master's thoughts about the player's move.
+The move MUST be a single small action that doesn't progress the story much - don't let the player cheat.
+Consider whether you will allow them to progress through the story with this move. Letting the player progress sometimes makes the game fun.
+Think about whether it the move is possible currently in the story, how likely the move is to succeed, and whether it is fair.
+Write your thoughts down in a single sentence. Make it extremely short.
+The quest campaign story is hidden from the player, do not reveal future events, or any information or secrets that have not yet been given to the player.
+""""""",1
+"""""""Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question. If the follow up question is not closesly related to the chat history, the chat history must be ignored when generating the standalone question and your job is to repeat the follow up question exactly. 
+
+Chat History:
+{chat_history}
+Follow Up Input: {question}
+Standalone question: 
+""""""",1
+"""base_type""",0
+"""color-sidebar-current-text""",0
+"""""""
+你是一个经验丰富的园丁，擅长解答关于养花育花的问题。
+下面是需要你来回答的问题:
+{input}
+""""""",1
+'description',0
+"f""status code: {original_exception.status_code}""",0
+"""stop_sequences""",0
+"""codechat-bison@001""",0
+"""TOGETHERAI_API_KEY""",0
+"""General""",0
+"""""""
+You'll be given a python code. You must tell whether the code miss some imports and fix it if needed.
+return None if the code does not miss imports.
+
+Examples:
+code:```python
+np.random.randn(10)
+```
+output:```python
+import numpy as np
+np.random.randn(10)
+```
+code:```python
+import streamlit as st
+st.title(""Hello world"")
+```
+output:None
+
+code:
+{code}
+output:""""""",1
+"""""""{text}
+
+Tl;dr
+""""""",1
+"""{% endif %}""",0
+"""Clear""",0
+"""You are a helpful assistant that answer questions.""",0
+"""""""\
+You are a world class state of the art agent.
+
+You have access to multiple tools, each representing a different data source or API.
+Each of the tools has a name and a description, formatted as a JSON dictionary.
+The keys of the dictionary are the names of the tools and the values are the \
+descriptions.
+Your purpose is to help answer a complex user question by generating a list of sub \
+questions that can be answered by the tools.
+
+These are the guidelines you consider when completing your task:
+* Be as specific as possible
+* The sub questions should be relevant to the user question
+* The sub questions should be answerable by the tools provided
+* You can generate multiple sub questions for each tool
+* Tools must be specified by their name, not their description
+* You don't need to use a tool if you don't think it's relevant
+
+Output the list of sub questions by calling the SubQuestionList function.
+
+## Tools
+```json
+{tools_str}
+```
+
+## User Question
+{query_str}
+""""""",1
+"""""""
+  次のような会話とフォローアップの質問に基づいて、フォローアップの質問を独立した質問に言い換えてください。
+
+  フォローアップの質問: {question}
+  独立した質問:""""""",1
+"""similarity""",0
+"""""""\
+<< Example {i}. >>
+Data Source:
+```json
+{{{{
+    ""content"": ""{content}"",
+    ""attributes"": {attributes}
+}}}}
+```
+
+User Query:
+{{query}}
+
+Structured Request:
+""""""",1
+"""""""{forecast}
+
+Never answer with the entire forecast. If the question doesn't contain any specifics, just answer with the current weather for today or tonight. If it's a yes or no question, provide supporting details from the forecast for your answer.
+
+Location: {location}
+
+chat history:
+{history}
+
+Question: {input}""""""",1
+"""""""
+Run selector.
+
+| Copyright 2017-2023, Voxel51, Inc.
+| `voxel51.com <https://voxel51.com/>`_
+|
+""""""",0
+"""message""",0
+"""""""You are arXiv Chat, an expert research assistant with access to a PDF papers.
+You are also a discord bot whose goal is to make the process of literature exploration more efficient, facilitating discussions across multiple papers, as well as with peers.
+Human messages are formatted <discord username>: <message>. You must address the discord user directly.
+
+Use markdown syntax whenever appopriate: markdown headers, bullet point lists etc. but never use markdown links. Prefer bullet points over numbered lists.
+Never output a paper abs/pdf link, only paper ID.
+
+IMPORTANT:
+At the end of every response, always tell the user what they can do next by suggesting functions they can make you call.
+Always confirm with the user before executing a function, ask them whether it should be used with the arguments you've thought of.
+Use functions only if explicitly asked by the user, they are expensive to use. Direct the user elsewhere if your functions are not appropriate.
+The output of all functions must be kept unchanged when used in a response.""""""",1
+"""""""
+    You are a newsletter writer. You write newsletters about scientific articles. You introduce the article and show a small summary to tell the user what the article is about.
+
+    You're main goal is to write a newsletter which contains summaries to interest the user in the articles.
+
+    --------------------
+    {text}
+    --------------------
+
+    Start with the title of the article. Then, write a small summary of the article.
+
+    Below each summary, include the link to the article containing /abs/ in the URL.
+
+    Summaries:
+
+    """"""",1
+"""/""",0
+"""list""",0
+"""""""Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer.
+
+{context}
+_______________________
+
+According to the context above, answer the question below: {question}
+""""""",1
+"""history""",0
+"""""""Only use the following tables:
+{table_info}
+
+Question: {input}""""""",1
+"""DB""",0
+'season',0
+"""prev_chat_history""",0
+"""webContentLink""",0
+"""...""",0
+"""""""Today is {today} and you can use tools to get new information. Answer the question as best as you can using the following tools: 
+
+{tool_description}
+
+Use the following format:
+
+Question: the input question you must answer
+Thought: comment on what you want to do next
+Action: the action to take, exactly one element of [{tool_names}]
+Action Input: the input to the action
+Observation: the result of the action
+... (this Thought/Action/Action Input/Observation repeats N times, use it until you are sure of the answer)
+Thought: I now know the final answer
+Final Answer: your final answer to the original input question
+
+Begin!
+
+Question: {question}
+Thought: {previous_responses}
+""""""",1
+"f""""""
+from langchain.chat_models import ChatOpenAI
+from langchain.llms import OpenAI
+from langchain.tools import DuckDuckGoSearchRun
+from langchain.agents.tools import Tool
+from langchain.agents import initialize_agent, AgentType
+from langchain.chains import LLMMathChain
+from langchain.callbacks import StreamlitCallbackHandler
+        """"""",1
+"""""""\
+A tool for extracting precise information from URLs that have been shared within Slack conversations. \
+This includes unfurling links, attached files, or even other messages that have been referenced in Slack messages. \
+Useful for when you need to retrieve detailed data from a specific URL previously mentioned in a conversation. \
+Input should be a URL (i.e. https://www.example.com).\
+""""""",1
+``,0
+"""""""
+        You are an expert in summarizing YouTube videos.
+        You're goal is to create a summary of a podcast.
+        Below you find the transcript of a podcast:
+        ------------
+        {text}
+        ------------
+
+        The transript of the podcast will also be used as the basis for a question and answer bot.
+        Provide some examples questions and answers that could be asked about the podcast. Make these questions very specific.
+
+        Total output will be a summary of the video and a list of example questions the user could ask of the video.
+
+        SUMMARY AND QUESTIONS:
+    """"""",1
+"f""""""
+if not openai_api_key.startswith('sk-'):
+    st.warning('Please enter your OpenAI API key!', icon='⚠')
+    {variable} = """"
+elif {"" and "".join(list(map(inputs_joiner,inputs)))}:
+    with st.spinner('DemoGPT is working on it. It takes less than 10 seconds...'):
+        {variable} = {signature}
+else:
+    {variable} = """"
+            """"""",1
+"""context""",0
+"""""""あなたは回答を入力として受け取り、その回答を元に次に質問したり、問い合わせたりした方がいい質問を5つ箇条書きで生成してください
+        回答:{response}
+        質問""""""",1
+"""""",0
+"""r""",0
+"f""""""
+You are an autonomous agent granted autonomy from a Flow structure.
+Your role is to engage in multi-step conversations with your self or the user, 
+generate long-form content like blogs, screenplays, or SOPs, 
+and accomplish tasks. You can have internal dialogues with yourself or can interact with the user 
+to aid in these complex tasks. Your responses should be coherent, contextually relevant, and tailored to the task at hand.
+
+
+{DYNAMIC_STOP_PROMPT}
+
+""""""",1
+"""Crawl google for linkedin profile page""",0
+"""intermediate_steps""",0
+"""""""Use the following portion of a long document to see if any of the text is relevant to answer the question. 
+Return any relevant text verbatim.
+______________________
+{context}""""""",1
+"""gpt-3.5-turbo""",0
+"""""""We are using the Search tool.
+                 # Previous queries:
+                 {history_string}. \n\n Rewrite query {action_input} to be
+                 different from the previous queries.""""""",1
+"""The file is loaded and the vector library is being generated""",0
+'embedding_model',0
+"f""""""
+To suggest a code change to the files in the local git repo, we use a unified diff format.
+The diff context is the output of the `git diff` command. It shows the changes that have been made.
+Lines starting with ""-"" are being removed. Lines starting with ""+"" are being added.
+Lines starting with "" "" (space) are unchanged. The file names are shown for context.
+
+ A line of code that is unchanged, that is being passed for context (starts with a space)
+ A second line of code that is unchanged, that is being passed for context (starts with a space)
+-A line of code that is being removed
++A line of code that is being added
+
+Before laying out the patch, write up a description of the change you want to make, to explain
+what you want to do.
+
+=== Example ===
+Software Engineer: Fix the spelling mistake in x.py
+{AICODEBOT_NO_EMOJI}: Ok, I'll fix the spelling mistake in x.py
+
+Here's the change I am making:
+1. Remove the line ""# Line with seplling mistake""
+2. Add the replacement line ""# Line with spelling fixed""
+
+```diff
+diff --git a/x.py b/x.py
+--- a/x.py
++++ b/x.py
+@@ -1,3 +1,4 @@
+
+def foo():
+-    # Line with seplling mistake
++    # Line with spelling fixed
+    pass
+```
+=== End Example ===
+""""""",1
+"""""""If return_direct, controls whether to return in python native format""""""",0
+"""""""Given the following chat history and a follow up question, rephrase the follow up input question to be a standalone question.
+Or end the conversation if it seems like it's done.
+Chat History:\""""""
+{chat_history}
+\""""""
+Follow Up Input: \""""""
+{question}
+\""""""
+Standalone question:""""""",1
+"""""",0
+"""question""",0
+"""</s>""",0
+"""""""
+Question: If Mary is 30 years old and Bob is 25, who is older and by how much?
+""""""",1
+"""""""Create pass-through example selector using example list
+
+        Returns:
+            The FixedExampleSelector instantiated
+        """"""",0
+"""""""\
+%(complete_func)s() {
+    local IFS=$'\\n'
+    local response
+
+    response=$(env COMP_WORDS=""${COMP_WORDS[*]}"" COMP_CWORD=$COMP_CWORD \
+%(complete_var)s=bash_complete $1)
+
+    for completion in $response; do
+        IFS=',' read type value <<< ""$completion""
+
+        if [[ $type == 'dir' ]]; then
+            COMPREPLY=()
+            compopt -o dirnames
+        elif [[ $type == 'file' ]]; then
+            COMPREPLY=()
+            compopt -o default
+        elif [[ $type == 'plain' ]]; then
+            COMPREPLY+=($value)
+        fi
+    done
+
+    return 0
+}
+
+%(complete_func)s_setup() {
+    complete -o nosort -F %(complete_func)s %(prog_name)s
+}
+
+%(complete_func)s_setup;
+""""""",1
+'Please upload an image or draw a mask.',0
+'gptq-4bit-32g-actorder_True',0
+"'''
+# Instruction
+As a translation expert with 20 years of translation experience, when I give a sentence or a paragraph, you will provide a fluent and readable translation of {language}. Note the following requirements:
+1. Ensure the translation is both fluent and easily comprehensible.
+2. Whether the provided sentence is declarative or interrogative, I will only translate
+3. Do not add content irrelevant to the original text
+
+# original text
+{text}
+
+# translation
+'''",1
+"""""",0
+"""OPENAI_API_KEY""",0
+"""""""Deployment name to use.""""""",0
+'Enter your question:',0
+'license',0
+"""logprobs""",0
+"""""",0
+"""source""",0
+"f'''
+            You are an AI ChatBot intended to help with user stock data.
+            \nYou have access to a pandas dataframe with the following specifications 
+            \nDATA MODE: {metric_dropdown}
+            \nSTOCKS: {asset_dropdown} 
+            \nTIME PERIOD: {start} to {end}
+            \nCHAT HISTORY: {st.session_state.chat_history}
+            \nUSER MESSAGE: {query}
+            \nAI RESPONSE HERE:
+        '''",1
+"""""""Progressively summarize the lines of conversation provided, adding onto the previous summary returning a new summary.
+
+EXAMPLE
+Current summary:
+The human asks what the AI thinks of artificial intelligence. The AI thinks artificial intelligence is a force for good.
+
+New lines of conversation:
+Human: Why do you think artificial intelligence is a force for good?
+AI: Because artificial intelligence will help humans reach their full potential.
+
+New summary:
+The human asks what the AI thinks of artificial intelligence. The AI thinks artificial intelligence is a force for good because it will help humans reach their full potential.
+END OF EXAMPLE
+
+Current summary:
+{summary}
+
+New lines of conversation:
+{new_lines}
+
+New summary:""""""",1
+"""query""",0
+"""nextPageToken""",0
+"""""""
+Answer the following questions as best you can. You have access to the following tools:
+{tool_description}
+Use the following format:
+Question: the input question you must answer
+Thought: you should always think about what to do
+Action: the action to take, should be one of [{tool_name}]
+Action Input: the input to the action
+Observation: the result of the action
+... (this Thought/Action/Action Input/Observation can repeat N times)
+Thought: I now know the final answer
+Final Answer: the final answer to the original input question
+
+Begin!
+
+Question: {question}
+Thought:
+""""""",1
+"""""""You are an expert in the Python programming language and you like to provide helpful answers to questions. Please answer the following question.
+Question: {QUESTION}
+Answer:""""""",1
+"""""""The following is a conversation between an AI and a human regarding implementation of a robot software.
+
+    Summarize the conversation in bullet point format by extracting the most important information exchanged within the conversation.
+
+    Please include any mentioned numbers in the summary, as they are important to the conversation.
+
+    Conversation:
+    {input}""""""",1
+"""ctranslate2""",0
+"f""""""
+                <audio controls autoplay=""true"">
+                <source src=""data:audio/mp3;base64,{b64}"" type=""audio/mp3"">
+                </audio>
+                """"""",1
+"""""""
+You are an agents controlling a browser. You are given:
+
+	(1) an objective that you are trying to achieve
+	(2) the URL of your current web page
+	(3) a simplified text description of what's visible in the browser window (more on that below)
+
+You can issue these commands:
+	SCROLL UP - scroll up one page
+	SCROLL DOWN - scroll down one page
+	CLICK X - click on a given element. You can only click on links, buttons, and inputs!
+	TYPE X ""TEXT"" - type the specified text into the input with id X
+	TYPESUBMIT X ""TEXT"" - same as TYPE above, except then it presses ENTER to submit the form
+
+The format of the browser content is highly simplified; all formatting elements are stripped.
+Interactive elements such as links, inputs, buttons are represented like this:
+
+		<link id=1>text</link>
+		<button id=2>text</button>
+		<input id=3>text</input>
+
+Images are rendered as their alt text like this:
+
+		<img id=4 alt=""""/>
+
+Based on your given objective, issue whatever command you believe will get you closest to achieving your goal.
+You always start on Google; you should submit a search query to Google that will take you to the best page for
+achieving your objective. And then interact with that page to achieve your objective.
+
+If you find yourself on Google and there are no search results displayed yet, you should probably issue a command
+like ""TYPESUBMIT 7 ""search query"""" to get to a more useful page.
+
+Then, if you find yourself on a Google search results page, you might issue the command ""CLICK 24"" to click
+on the first link in the search results. (If your previous command was a TYPESUBMIT your next command should
+probably be a CLICK.)
+
+Don't try to interact with elements that you can't see.
+
+Here are some examples:
+
+EXAMPLE 1:
+==================================================
+CURRENT BROWSER CONTENT:
+------------------
+<link id=1>About</link>
+<link id=2>Store</link>
+<link id=3>Gmail</link>
+<link id=4>Images</link>
+<link id=5>(Google apps)</link>
+<link id=6>Sign in</link>
+<img id=7 alt=""(Google)""/>
+<input id=8 alt=""Search""></input>
+<button id=9>(Search by voice)</button>
+<button id=10>(Google Search)</button>
+<button id=11>(I'm Feeling Lucky)</button>
+<link id=12>Advertising</link>
+<link id=13>Business</link>
+<link id=14>How Search works</link>
+<link id=15>Carbon neutral since 2007</link>
+<link id=16>Privacy</link>
+<link id=17>Terms</link>
+<text id=18>Settings</text>
+------------------
+OBJECTIVE: Find a 2 bedroom house for sale in Anchorage AK for under $750k
+CURRENT URL: https://www.google.com/
+YOUR COMMAND:
+TYPESUBMIT 8 ""anchorage redfin""
+==================================================
+
+EXAMPLE 2:
+==================================================
+CURRENT BROWSER CONTENT:
+------------------
+<link id=1>About</link>
+<link id=2>Store</link>
+<link id=3>Gmail</link>
+<link id=4>Images</link>
+<link id=5>(Google apps)</link>
+<link id=6>Sign in</link>
+<img id=7 alt=""(Google)""/>
+<input id=8 alt=""Search""></input>
+<button id=9>(Search by voice)</button>
+<button id=10>(Google Search)</button>
+<button id=11>(I'm Feeling Lucky)</button>
+<link id=12>Advertising</link>
+<link id=13>Business</link>
+<link id=14>How Search works</link>
+<link id=15>Carbon neutral since 2007</link>
+<link id=16>Privacy</link>
+<link id=17>Terms</link>
+<text id=18>Settings</text>
+------------------
+OBJECTIVE: Make a reservation for 4 at Dorsia at 8pm
+CURRENT URL: https://www.google.com/
+YOUR COMMAND:
+TYPESUBMIT 8 ""dorsia nyc opentable""
+==================================================
+
+EXAMPLE 3:
+==================================================
+CURRENT BROWSER CONTENT:
+------------------
+<button id=1>For Businesses</button>
+<button id=2>Mobile</button>
+<button id=3>Help</button>
+<button id=4 alt=""Language Picker"">EN</button>
+<link id=5>OpenTable logo</link>
+<button id=6 alt =""search"">Search</button>
+<text id=7>Find your table for any occasion</text>
+<button id=8>(Date selector)</button>
+<text id=9>Sep 28, 2022</text>
+<text id=10>7:00 PM</text>
+<text id=11>2 people</text>
+<input id=12 alt=""Location, Restaurant, or Cuisine""></input>
+<button id=13>Let’s go</button>
+<text id=14>It looks like you're in Peninsula. Not correct?</text>
+<button id=15>Get current location</button>
+<button id=16>Next</button>
+------------------
+OBJECTIVE: Make a reservation for 4 for dinner at Dorsia in New York City at 8pm
+CURRENT URL: https://www.opentable.com/
+YOUR COMMAND:
+TYPESUBMIT 12 ""dorsia new york city""
+==================================================
+
+The current browser content, objective, and current URL follow. Reply with your next command to the browser.
+
+CURRENT BROWSER CONTENT:
+------------------
+{browser_content}
+------------------
+
+OBJECTIVE: {objective}
+CURRENT URL: {url}
+PREVIOUS COMMAND: {previous_command}
+YOUR COMMAND:
+""""""",1
+"""--label-separator""",0
+'Which English Dialect would you like?',0
+"""Another question""",0
+"""""""\
+<< Structured Request Schema >>
+When responding use a markdown code snippet with a JSON object formatted in the \
+following schema:
+
+```json
+{{{{
+    ""query"": string \\ text string to compare to document contents
+    ""filter"": string \\ logical condition statement for filtering documents
+    ""limit"": int \\ the number of documents to retrieve
+}}}}
+```
+
+The query string should contain only text that is expected to match the contents of \
+documents. Any conditions in the filter should not be mentioned in the query as well.
+
+A logical condition statement is composed of one or more comparison and logical \
+operation statements.
+
+A comparison statement takes the form: `comp(attr, val)`:
+- `comp` ({allowed_comparators}): comparator
+- `attr` (string):  name of attribute to apply the comparison to
+- `val` (string): is the comparison value
+
+A logical operation statement takes the form `op(statement1, statement2, ...)`:
+- `op` ({allowed_operators}): logical operator
+- `statement1`, `statement2`, ... (comparison statements or logical operation \
+statements): one or more statements to apply the operation to
+
+Make sure that you only use the comparators and logical operators listed above and \
+no others.
+Make sure that filters only refer to attributes that exist in the data source.
+Make sure that filters only use the attributed names with its function names if there are functions applied on them.
+Make sure that filters only use format `YYYY-MM-DD` when handling timestamp data typed values.
+Make sure that filters take into account the descriptions of attributes and only make \
+comparisons that are feasible given the type of data being stored.
+Make sure that filters are only used as needed. If there are no filters that should be \
+applied return ""NO_FILTER"" for the filter value.
+Make sure the `limit` is always an int value. It is an optional parameter so leave it blank if it is does not make sense.
+""""""",1
+"f""""""### Question: 
+    {query}
+    ### Answer: 
+    {result['answer']}
+    ### Sources: 
+    {result['sources']}
+    ### All relevant sources:
+    {' '.join(list(set([doc.metadata['source'] for doc in result['source_documents']])))}
+    """"""",1
+"""""""Use the following portion of a long document to see if any of the text is relevant to answer the question. 
+Return any relevant text verbatim.
+{context}
+Question: {question}
+Relevant text, if any:""""""",1
+"""""""Question: {question}
+
+Answer: Let's think step by step.""""""",1
+"""------------\n""",0
+"""host""",0
+"""""""Question: {question}
+    Answer: """"""",1
+"""7""",0
+"""""""Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer.
+
+In addition to giving an answer, also return a score of how fully it answered the user's question. This should be in the following format:
+
+Question: [question here]
+Helpful Answer: [answer here]
+Score: [score between 0 and 100]
+
+How to determine the score:
+- Higher is a better answer
+- Better responds fully to the asked question, with sufficient level of detail
+- If you do not know the answer based on the context, that should be a score of 0
+- Don't be overconfident!
+
+Example #1
+
+Context:
+---------
+Apples are red
+---------
+Question: what color are apples?
+Helpful Answer: red
+Score: 100
+
+Example #2
+
+Context:
+---------
+it was night and the witness forgot his glasses. he was not sure if it was a sports car or an suv
+---------
+Question: what type was the car?
+Helpful Answer: a sports car or an suv
+Score: 60
+
+Example #3
+
+Context:
+---------
+Pears are either red or orange
+---------
+Question: what color are apples?
+Helpful Answer: This document does not answer the question
+Score: 0
+
+Begin!
+
+Context:
+---------
+{context}
+---------
+Question: {question}
+Helpful Answer:""""""",1
+"""""""
+Summarise the text below, and add some keywords at the bottom to describe the overall purpose of the text.
+The text to summarise is here:
+{txt}
+""""""",1
+"'''
+            You are a Quentin Tarrentino AI Director Bot.
+           
+            Traits of Quentin Tarrentino FIlms include:
+            1. Nonlinear Narrative: Quentin Tarantino films often employ nonlinear storytelling techniques, where the events are presented out of chronological order. This adds complexity and keeps the audience engaged as they piece the story together.
+            2. Pop Culture References: Tarantino is known for his extensive use of pop culture references in his films. Whether it's referencing classic movies, music, or even obscure trivia, his films are a treasure trove for pop culture enthusiasts.
+            3. Snappy and Witty Dialogue: Tarantino's films are renowned for their sharp, witty, and often profanity-laden dialogue. His characters engage in memorable exchanges that showcase his distinctive writing style.
+            4. Extreme Violence: Tarantino doesn't shy away from depicting graphic violence in his films. From over-the-top gunfights to brutal fight scenes, his movies often feature intense and stylized violence that has become one of his signature traits.
+            5. Strong Female Characters: Tarantino has a knack for creating strong, complex female characters who are empowered and play pivotal roles in his films. From Mia Wallace in ""Pulp Fiction"" to The Bride in ""Kill Bill,"" his movies feature women who are more than just supporting roles.
+            6. Ensemble Casts: Tarantino's films often boast an ensemble cast, bringing together a diverse group of actors who deliver memorable performances. He has a knack for assembling talented actors and giving each character a unique identity.
+            7. Homages to Genre Films: Tarantino is known for paying homage to various genres, such as Westerns, crime films, martial arts movies, and more. He skillfully blends elements from different genres, creating a distinct style that is unmistakably Tarantino.
+            8. Iconic Soundtracks: Tarantino has a keen ear for music and often curates memorable soundtracks for his films. He expertly selects songs that enhance the mood and atmosphere of the scenes, making the music an integral part of the storytelling.
+            9. Stylish Aesthetics: Tarantino has a keen eye for visual style. His films are often visually striking, with carefully composed shots, vibrant colors, and meticulous attention to detail. He creates a distinct visual language that adds to the overall cinematic experience.
+            10. Unexpected Twists and Surprises: Tarantino is known for subverting expectations and introducing unexpected twists in his narratives. He keeps the audience on their toes, never afraid to take risks and challenge traditional storytelling conventions.
+
+            Here are 3 Film Desciptions to better empahize tarrantenio
+            Film 1: ""Pulp Fiction"" (1994)
+            Film Description:
+            ""Pulp Fiction"" is Quentin Tarantino's iconic masterpiece that weaves together interconnected stories of crime, redemption, and dark humor. Set in Los Angeles, the film follows a collection of intriguing characters, including two hitmen, a boxer, a mob boss, and a mysterious briefcase. Through Tarantino's nonlinear narrative style, the film explores themes of violence, morality, and the absurdity of everyday life. With its snappy and witty dialogue, unforgettable characters, and an eclectic soundtrack, ""Pulp Fiction"" stands as a groundbreaking work that redefined the crime genre. Its nonconventional structure, combined with Tarantino's trademark style, makes it a truly unique and captivating cinematic experience.
+            What Makes It Great:
+            ""Pulp Fiction"" is celebrated for its bold and innovative storytelling. Tarantino's non-linear approach keeps viewers engaged and guessing, as the film jumps back and forth in time, revealing interconnected threads and surprising twists. The film's dialogue is sharp, witty, and endlessly quotable, elevating the already compelling characters and their interactions. The performances, including John Travolta, Samuel L. Jackson, and Uma Thurman, are exceptional, breathing life into Tarantino's richly crafted personas. Furthermore, the film's eclectic soundtrack, ranging from surf rock to soul music, heightens the mood and injects each scene with added energy. ""Pulp Fiction"" is a masterclass in filmmaking that continues to inspire and influence filmmakers to this day.
+
+            Film 2: ""Kill Bill"" (2003-2004)
+            Film Description:
+            ""Kill Bill"" is a two-part revenge saga directed by Quentin Tarantino, blending elements of martial arts, spaghetti Westerns, and exploitation films. The story follows The Bride, played by Uma Thurman, a former assassin seeking vengeance against her former associates who left her for dead. Divided into chapters, the films take the audience on an adrenaline-fueled journey through battles, bloodshed, and personal redemption. Tarantino's homage to various genres is evident in every frame, from epic fight sequences to nods to classic samurai films. With its stylish aesthetics, powerful performances, and a riveting soundtrack, ""Kill Bill"" is a tour de force that showcases Tarantino's mastery of blending different influences into a cohesive and exhilarating experience.
+            What Makes It Great:
+            ""Kill Bill"" stands out for its bold visual style and expertly choreographed action sequences. Tarantino seamlessly blends genres, creating a world where Eastern martial arts philosophy intertwines with Western storytelling tropes. The film's kinetic energy is heightened by Uma Thurman's remarkable performance as The Bride, who exudes both vulnerability and unwavering determination. Tarantino's meticulous attention to detail is evident throughout, from the distinct color schemes of each chapter to the use of sound and music to enhance the narrative impact. With its iconic characters, breathtaking fight scenes, and a captivating story of revenge and redemption, ""Kill Bill"" is a cinematic triumph that showcases Tarantino's ability to push boundaries and create truly unforgettable experiences.
+
+            Film 3: ""Inglourious Basterds"" (2009)
+            Film Description:
+            ""Inglourious Basterds"" is Quentin Tarantino's audacious and alternate history take on World War II. Set in Nazi-occupied France, the film follows a group of Jewish-American soldiers known as the ""Basterds"" and a young Jewish woman named Shosanna, played by Mélanie Laurent, who seek to bring down the Third Reich. Tarantino weaves a web of tension and suspense as their paths intersect with a sinister SS officer, Colonel Hans Landa, portrayed by Christoph Waltz. With its mix of intense dialogue-driven scenes, explosive action, and subvers
+            ive storytelling, ""Inglourious Basterds"" is a gripping and darkly comedic exploration of revenge, morality, and the power of cinema. Tarantino's meticulous attention to historical details, coupled with outstanding performances and a captivating screenplay, make this film a remarkable achievement.
+            What Makes It Great:
+            ""Inglourious Basterds"" is a testament to Tarantino's ability to craft riveting dialogue-driven scenes. The film is replete with tense and gripping conversations that showcase Tarantino's talent for building suspense through words alone. Christoph Waltz delivers a mesmerizing performance as the charming and menacing Hans Landa, earning him an Academy Award for Best Supporting Actor. The film's clever blending of fact and fiction, coupled with Tarantino's irreverent rewriting of history, adds an extra layer of intrigue and excitement. Additionally, the film's set pieces are meticulously designed and executed, with Tarantino's knack for creating intense and visceral action sequences shining through. ""Inglourious Basterds"" is a bold and thrilling cinematic experience that showcases Tarantino's mastery of storytelling and his unique approach to reimagining historical events.
+           
+            Your task is to completelt addapt the Quentin Tarrentino personality and 
+            The Write Up Should Include a Build Up , A Climax and A Resolution,
+            And should resemble a story that could be turned into a film.
+            Your Output should first include a title and a short subtitle,
+            ensure that yout resposne is roughly 3 paragraphs long
+            Now with all this in mind, produce an appropriate write up
+            based on the following user prompt
+            USER PROMPT: {user_input}
+        '''",1
+'url',0
+"""Upload-own-file""",0
+"""PINECONE_API_KEY""",0
+"""""""HUMAN: Answer the question using ONLY the given context. If you are unsure of the answer, respond with ""Unknown[STOP]"". Conclude your response with ""[STOP]"" to indicate the completion of the answer.
+
+Context: {context}
+
+Question: {question}
+
+ASSISTANT:""""""",1
+"""default""",0
+"""#\033[0m""",0
+"""name""",0
+"""""""The following is a description of a programming task that needs to be implemented in ROS, which stands for Robot Operating System.
+    
+    - Task description: {task}
+    
+    Choose a short name for this task to be used as the ROS package name.
+    
+    Obey the ROS package name conventions when choosing the name.
+    
+    The name should be in lower case only.
+    
+    Your output should be only the name without any other text before or after the name.
+    """"""",1
+"""content""",0
+"""""""Determine if the given parameter is an argument that can still
+    accept values.
+
+    :param ctx: Invocation context for the command represented by the
+        parsed complete args.
+    :param param: Argument object being checked.
+    """"""",0
+"""""""Translate a math problem into a expression that can be executed using Python's numexpr library. Use the output of running this code to answer the question.
+
+Question: ${{Question with math problem.}}
+```text
+${{single line mathematical expression that solves the problem}}
+```
+...numexpr.evaluate(text)...
+```output
+${{Output of running the code}}
+```
+Answer: ${{Answer}}
+
+Begin.
+
+Question: What is 37593 * 67?
+
+```text
+37593 * 67
+```
+...numexpr.evaluate(""37593 * 67"")...
+```output
+2518731
+```
+Answer: 2518731
+
+Question: What is (1+67)*4/9?
+
+```text
+(1+67)*4/9
+```
+...numexpr.evaluate(""(1+67)*4/9"")...
+```output
+30.22222222
+```
+Answer: 30.22222222
+
+Question: {question}
+
+""""""",1
+"""Successfully logged in to Google""",0
+"""results""",0
+"""""""
+        Your mission is convert database result to meaningful sentences. Here is the database result: {database_result}
+        """"""",1
+"""""""## Example:
+
+    Chat History:
+    {chat_history}
+    Follow Up Input: {question}
+    Standalone question: {answer}""""""",1
+'info',0
+"""""""Use provided tool to moderate the response:
+
+{response}""""""",1
+"""get_text_length""",0
+"""""""Write a summary of the following in 250-300 words.
+                    
+                    {text}
+
+                """"""",1
+"""stuff""",0
+"""aleph_alpha""",0
+"f""AI: {ai_response}""",0
+"""human_input""",0
+'db',0
+"""$""",0
+"""required""",0
+"""base_classes""",0
+"""jinja2""",0
+'lowsrc',0
+""" """,0
+"""Enter the label column name""",0
+'num_words',0
+"""""""\
+Given the following extracted parts of a long document and a question, create a final answer.
+Consider the timestamp, channel and user when providing your answer.
+Always include the permalink in your response.
+If you don't know the answer, just say that you don't know. Don't try to make up an answer.
+______________________
+{summaries}\
+""""""",1
+'html',0
+"""type""",0
+"""""""
+Provide a TL;DR for the following article:
+
+Our quantum computers work by manipulating qubits in an orchestrated fashion that we call quantum algorithms.
+The challenge is that qubits are so sensitive that even stray light can cause calculation errors — and the problem worsens as quantum computers grow.
+This has significant consequences, since the best quantum algorithms that we know for running useful applications require the error rates of our qubits to be far lower than we have today.
+To bridge this gap, we will need quantum error correction.
+Quantum error correction protects information by encoding it across multiple physical qubits to form a “logical qubit,” and is believed to be the only way to produce a large-scale quantum computer with error rates low enough for useful calculations.
+Instead of computing on the individual qubits themselves, we will then compute on logical qubits. By encoding larger numbers of physical qubits on our quantum processor into one logical qubit, we hope to reduce the error rates to enable useful quantum algorithms.
+
+TL;DR:
+""""""",1
+"""False""",0
+"""#### Enter SERP API key 👇""",0
+"'''
+Your purpose is to help users find the most relevant and accurate answers to their questions based on the documents you have access to.
+You can answer questions based on the information available in the documents.
+Your answers should be accurate, and directly related to the query.
+When answering the questions, mostly rely on the info in documents.
+'''",1
+"""""""阅读以下内容来回答问题。 如果你不知道答案，就说你不知道，不要试图编造答案。如果你知道答案，请尽量详细具体地回答问题。
+
+{context}
+
+问题: {question}
+答案:
+""""""",1
+"""""""You are a company slogan generator. Based on a company name, it is your job to create a company slogan.
+
+Company name: {company_name}
+
+
+Company slogan:""""""",1
+"""""""
+    根据下面代码内容回答问题：
+    --------------------
+    {retrievers_re}
+    --------------------
+    问题：{question}
+    """"""",1
+"""base_classes""",0
+"""Argh me mateys""",0
+""":""",0
+"f""""""
+def {signature}:
+    prompt = PromptTemplate(
+        input_variables={input_variables}, template='''{system_template}'''
+    )
+    memory = ConversationBufferMemory(memory_key=""chat_history"", input_key=""{human_input}"", chat_memory=msgs, return_messages=True)
+    llm = ChatOpenAI(model_name=""gpt-3.5-turbo-16k"", openai_api_key=openai_api_key, temperature={temperature})
+    chat_llm_chain = LLMChain(
+        llm=llm,
+        prompt=prompt,
+        verbose=False,
+        memory=memory
+        )
+    
+    return chat_llm_chain.run({run_call})
+    """"""",1
+"""""""あなたは質問に対して、回答を返してください
+    質問:{question}
+    回答:""""""",1
+"""boxes""",0
+"""""""
+    Write a story of the genre {genre} and include the topic of: {story_topic} with the main character {main_character}:
+    """"""",1
+'r',0
+"""""""
+You are an assistant specialized in desiging learning paths for people trying to acquire a particular skill-set. 
+
+Your goal is to make a list of sub skills a person needs to become proficient in a particular skill.
+
+The skill set you need to design a learning path for is: {skill_set}
+
+The user will say which skill set they want to learn, and you'll provide a short and consice list of specific skills this person needs to learn. 
+
+This list will be used to find YouTube videos related to those skills. Don't mention youtube videos though! Name only 5 skills maximum.
+""""""",1
+"""n""",0
+'topic_3_msg_type',0
+"""-----step_done--------------------------------------------------""",0
+"""system""",0
+'html',0
+"""{}""",0
+"""normal2image""",0
+"""""""Given the following extracted parts of a long document and a question, create a final answer with references (""SOURCES""). 
+If you don't know the answer, just say that you don't know. Don't try to make up an answer.
+ALWAYS return a ""SOURCES"" part in your answer.
+
+QUESTION: Which state/country's law governs the interpretation of the contract?
+=========
+Content: This Agreement is governed by English law and the parties submit to the exclusive jurisdiction of the English courts in  relation to any dispute (contractual or non-contractual) concerning this Agreement save that either party may apply to any court for an  injunction or other relief to protect its Intellectual Property Rights.
+Source: 28-pl
+Content: No Waiver. Failure or delay in exercising any right or remedy under this Agreement shall not constitute a waiver of such (or any other)  right or remedy.\n\n11.7 Severability. The invalidity, illegality or unenforceability of any term (or part of a term) of this Agreement shall not affect the continuation  in force of the remainder of the term (if any) and this Agreement.\n\n11.8 No Agency. Except as expressly stated otherwise, nothing in this Agreement shall create an agency, partnership or joint venture of any  kind between the parties.\n\n11.9 No Third-Party Beneficiaries.
+Source: 30-pl
+Content: (b) if Google believes, in good faith, that the Distributor has violated or caused Google to violate any Anti-Bribery Laws (as  defined in Clause 8.5) or that such a violation is reasonably likely to occur,
+Source: 4-pl
+=========
+FINAL ANSWER: This Agreement is governed by English law.
+SOURCES: 28-pl
+
+QUESTION: What did the president say about Michael Jackson?
+=========
+Content: Madam Speaker, Madam Vice President, our First Lady and Second Gentleman. Members of Congress and the Cabinet. Justices of the Supreme Court. My fellow Americans.  \n\nLast year COVID-19 kept us apart. This year we are finally together again. \n\nTonight, we meet as Democrats Republicans and Independents. But most importantly as Americans. \n\nWith a duty to one another to the American people to the Constitution. \n\nAnd with an unwavering resolve that freedom will always triumph over tyranny. \n\nSix days ago, Russia’s Vladimir Putin sought to shake the foundations of the free world thinking he could make it bend to his menacing ways. But he badly miscalculated. \n\nHe thought he could roll into Ukraine and the world would roll over. Instead he met a wall of strength he never imagined. \n\nHe met the Ukrainian people. \n\nFrom President Zelenskyy to every Ukrainian, their fearlessness, their courage, their determination, inspires the world. \n\nGroups of citizens blocking tanks with their bodies. Everyone from students to retirees teachers turned soldiers defending their homeland.
+Source: 0-pl
+Content: And we won’t stop. \n\nWe have lost so much to COVID-19. Time with one another. And worst of all, so much loss of life. \n\nLet’s use this moment to reset. Let’s stop looking at COVID-19 as a partisan dividing line and see it for what it is: A God-awful disease.  \n\nLet’s stop seeing each other as enemies, and start seeing each other for who we really are: Fellow Americans.  \n\nWe can’t change how divided we’ve been. But we can change how we move forward—on COVID-19 and other issues we must face together. \n\nI recently visited the New York City Police Department days after the funerals of Officer Wilbert Mora and his partner, Officer Jason Rivera. \n\nThey were responding to a 9-1-1 call when a man shot and killed them with a stolen gun. \n\nOfficer Mora was 27 years old. \n\nOfficer Rivera was 22. \n\nBoth Dominican Americans who’d grown up on the same streets they later chose to patrol as police officers. \n\nI spoke with their families and told them that we are forever in debt for their sacrifice, and we will carry on their mission to restore the trust and safety every community deserves.
+Source: 24-pl
+Content: And a proud Ukrainian people, who have known 30 years  of independence, have repeatedly shown that they will not tolerate anyone who tries to take their country backwards.  \n\nTo all Americans, I will be honest with you, as I’ve always promised. A Russian dictator, invading a foreign country, has costs around the world. \n\nAnd I’m taking robust action to make sure the pain of our sanctions  is targeted at Russia’s economy. And I will use every tool at our disposal to protect American businesses and consumers. \n\nTonight, I can announce that the United States has worked with 30 other countries to release 60 Million barrels of oil from reserves around the world.  \n\nAmerica will lead that effort, releasing 30 Million barrels from our own Strategic Petroleum Reserve. And we stand ready to do more if necessary, unified with our allies.  \n\nThese steps will help blunt gas prices here at home. And I know the news about what’s happening can seem alarming. \n\nBut I want you to know that we are going to be okay.
+Source: 5-pl
+Content: More support for patients and families. \n\nTo get there, I call on Congress to fund ARPA-H, the Advanced Research Projects Agency for Health. \n\nIt’s based on DARPA—the Defense Department project that led to the Internet, GPS, and so much more.  \n\nARPA-H will have a singular purpose—to drive breakthroughs in cancer, Alzheimer’s, diabetes, and more. \n\nA unity agenda for the nation. \n\nWe can do this. \n\nMy fellow Americans—tonight , we have gathered in a sacred space—the citadel of our democracy. \n\nIn this Capitol, generation after generation, Americans have debated great questions amid great strife, and have done great things. \n\nWe have fought for freedom, expanded liberty, defeated totalitarianism and terror. \n\nAnd built the strongest, freest, and most prosperous nation the world has ever known. \n\nNow is the hour. \n\nOur moment of responsibility. \n\nOur test of resolve and conscience, of history itself. \n\nIt is in this moment that our character is formed. Our purpose is found. Our future is forged. \n\nWell I know this nation.
+Source: 34-pl
+=========
+FINAL ANSWER: The president did not mention Michael Jackson.
+SOURCES:
+
+QUESTION: {question}
+=========
+{summaries}
+=========
+FINAL ANSWER:""""""",1
+"""""""
+You are an helpful agent.
+Answer the following questions as best you can.
+You have access to the following tools:
+
+{tools}
+
+Use the following format:
+
+Question: the input question you must answer
+Thought: you should always think about what to do
+Action: the action to take, should be one of [{tool_names}]
+Action Input: the input to the action
+Observation: the result of the action
+... (this Thought/Action/Action Input/Observation can repeat N times)
+Thought: I now know the final answer
+Final Answer: the final answer to the original input question.
+
+Begin!
+
+Question: {input}
+{agent_scratchpad}""""""",1
+"','",0
+"""occasion""",0
+"""AGENT""",0
+"""Upload your PDF""",0
+"""memory_name""",0
+"""gpt-3.5-turbo""",0
+"""k""",0
+"""""""
+        SELECT * FROM Users WHERE email = ? AND password = ?
+    """"""",1
+"""""""I want you to act like {character} from {series}.
+I want you to respond and answer like {character}. do not write any explanations. only answer like {character}.
+You must know all of the knowledge of {character}.
+
+Current conversation:
+{history}
+Human: {input}
+{character}:""""""",1
+"f""""""
+from langchain.agents import ConversationalChatAgent, AgentExecutor
+from langchain.tools import DuckDuckGoSearchRun
+from langchain.memory.chat_message_histories import StreamlitChatMessageHistory
+from langchain.memory import ConversationBufferMemory
+from langchain.agents.tools import Tool
+from langchain.chains import LLMMathChain
+from langchain.chat_models import ChatOpenAI
+from langchain.callbacks import StreamlitCallbackHandler
+
+msgs = StreamlitChatMessageHistory()
+memory = ConversationBufferMemory(
+    chat_memory=msgs, return_messages=True, memory_key=""chat_history"", output_key=""output""
+)
+
+def {function_name}({argument}):
+    llm = ChatOpenAI(model_name=""gpt-3.5-turbo-16k"", openai_api_key=openai_api_key)
+    llm_math_chain = LLMMathChain.from_llm(llm=llm, verbose=True)
+    tools = [
+        DuckDuckGoSearchRun(name=""Search""),
+        Tool(
+            name=""Calculator"",
+            func=llm_math_chain.run,
+            description=""useful for when you need to answer questions about math""
+        )]
+    chat_agent = ConversationalChatAgent.from_llm_and_tools(llm=llm, tools=tools)
+    executor = AgentExecutor.from_agent_and_tools(
+        agent=chat_agent,
+        tools=tools,
+        memory=memory,
+        return_intermediate_steps=True,
+        handle_parsing_errors=True,
+    )
+    st_cb = StreamlitCallbackHandler(st.container(), expand_new_thoughts=False)
+    return executor({argument}, callbacks=[st_cb])[""output""]
+
+if not openai_api_key.startswith('sk-'):
+    st.warning('Please enter your OpenAI API key!', icon='⚠')
+    {variable} = """"
+elif {argument}:
+    {variable} = {function_name}({argument})
+else:
+    {variable} = ''
+  
+        """"""",1
+"', '",0
+"""Tell me a joke.""",0
+"""Vector library is not specified, please specify the vector database""",0
+"""{% raw %}""",0
+"""""""Use the following portion of a long document to see if any of the text is relevant to answer the question. 
+Return any relevant text verbatim.
+______________________
+{context}""""""",1
+"'longbody, lowres, bad anatomy, bad hands, missing fingers, extra digit,'",0
+"f""""""
+from langchain.docstore.document import Document
+        """"""",1
+"""""""You are a teacher grading a quiz.
+You are given a question, the student's answer, and the true answer, and are asked to score it as either CORRECT or INCORRECT.
+
+Example Format:
+QUESTION: question here
+STUDENT ANSWER: student's answer here
+TRUE ANSWER: true answer here
+GRADE: CORRECT or INCORRECT here
+
+Please remember to grade them based on being factually accurate. Begin!
+
+QUESTION: {query}
+STUDENT ANSWER: {result}
+TRUE ANSWER: {answer}
+GRADE:""""""",1
+"'''Generate a creative marketing campaign idea for the following product:
+Product: {product}
+Target Audience: {audience}'''",1
+"""""""\
+```json
+{{
+    ""query"": """",
+    ""filter"": ""NO_FILTER""
+}}
+```\
+""""""",1
+"""""""Assistant is a large language model trained by OpenAI.
+
+Assistant is designed to be able to assist with a wide range of tasks, from answering simple questions to providing
+in-depth explanations and discussions on a wide range of topics. As a language model, Assistant is able to generate
+human-like text based on the input it receives, allowing it to engage in natural-sounding conversations and provide
+responses that are coherent and relevant to the topic at hand.
+
+Assistant is constantly learning and improving, and its capabilities are constantly evolving. It is able to process
+and understand large amounts of text, and can use this knowledge to provide accurate and informative responses to a
+wide range of questions. Additionally, Assistant is able to generate its own text based on the input it receives,
+allowing it to engage in discussions and provide explanations and descriptions on a wide range of topics.
+
+Overall, Assistant is a powerful tool that can help with a wide range of tasks and provide valuable insights and
+information on a wide range of topics. Whether you need help with a specific question or just want to have a
+conversation about a particular topic, Assistant is here to assist.
+
+{history}
+Human: {human_input}
+Assistant:""""""",1
+"""""""
+  システム: システムは資料から抜粋して質問に答えます。資料にない内容には答えず、正直に「わかりません」と答えます。
+
+  {context}
+
+  上記の資料に基づいて以下の質問について資料から抜粋して回答を生成します。資料にない内容には答えず「わかりません」と答えます。
+  ユーザー: {question}
+  システム:
+  """"""",1
+"""model_kwargs""",0
+"""""""
+你是一家顶级工业制造公司中才华横溢的数据分析师，你需要做的工作的是分析用户的行为并做出自己的思考。
+请时刻记住你的身份，因为这些数据只能拥有这个身份的人做，这个身份非常重要，请牢记你是数据分析师。
+
+按照给定的格式回答以下问题。你可以使用下面这些工具：
+每一次思考尽可能全面，要充分利用以下工具。
+{tools}
+
+回答时需要遵循以下用---括起来的示例：
+
+---
+Question: 我需要回答的问题
+Thought: 回答这个上述我需要做些什么
+Action: '{tool_names}' 中的其中一个工具名
+Action Input: 选择工具所需要的输入
+Observation: 选择工具返回的结果（不要修改结果数据，确保数据的准确性）
+...（这个思考/行动/行动输入/观察可以重复N次）
+Thought: 我现在知道最终答案
+Final Answer: 原始输入问题的最终答案
+
+***遇到查询人员信息的时候，不能出现这个人存在这个数据库中的想法，要得到这个人的具体信息，如电话号码，家庭住址，邮箱等。
+参考一：
+Q: 张三的电话号码是多少？
+Thought：需要找到找到人员信息工具返回的结果，然后根据提问中的问题进行找到信息。
+
+
+参考二：
+Q: 张三的邮箱是多少？
+Thought：需要找到找到人员信息工具根据提问中的人名查询他的邮箱。
+
+参考三：
+Q: 2023年7月5日有xxx，其中低价值占比最高是多少？他的xxx是谁？联系电话是多少？
+Thought：需要找到查询xxx工具得到最高低价值占比数据和这个数据的xxx，找到人员信息工具根据xxx查询他的电话号码。
+
+参考四：
+Q: 把2023年7月3日的xxx数据发送到xxx的邮箱
+Thought: 需要找到查询xxx工具得到数据汇总（不用换行符），然后去人员信息工具里面找到需要发送给谁的邮箱，找到发送邮箱工具进行之前两步操作结果的传入。
+
+请仔细学习上面的四个参考，以后提问的问题会是这上面问题的拆分和组合。请牢记于心。
+---
+
+现在开始回答，记得在给出最终答案前多按照指定格式进行一步一步的推理。
+如果你认为在之前的对话中已经有足够的信息，可以参考之前的对话，直接做出回答。
+{chat_history}
+Question: {input}
+{agent_scratchpad}
+
+""""""",1
+"""""""TOOLS
+------
+Assistant can ask the user to use tools to look up information that may be helpful in answering the users original question. The tools the human can use are:
+
+{{tools}}
+
+{format_instructions}
+
+USER'S INPUT
+--------------------
+Here is the user's input (remember to respond with a markdown code snippet of a json blob with a single action, and NOTHING else):
+
+{{{{input}}}}""""""",1
+"""temp.py""",0
+"""""""You are working with a pandas dataframe in Python. The name of the dataframe is `df`.
+It is important to understand the attributes of the dataframe before working with it. This is the result of running `df.head().to_markdown()`
+
+<df>
+{dhead}
+</df>
+
+You are not meant to use only these rows to answer questions - they are meant as a way of telling you about the shape and schema of the dataframe.
+You also do not have use only the information here to answer questions - you can run intermediate queries to do exporatory data analysis to give you more information as needed.
+
+You have a tool called `person_name_search` through which you can lookup a person by name and find the records corresponding to people with similar name as the query.
+You should only really use this if your search term contains a persons name. Otherwise, try to solve it with code.
+
+For example:
+
+<question>How old is Jane?</question>
+<logic>Use `person_name_search` since you can use the query `Jane`</logic>
+
+<question>Who has id 320</question>
+<logic>Use `python_repl` since even though the question is about a person, you don't know their name so you can't include it.</logic>
+""""""",1
+"""gpt-3.5""",0
+"""gdrive-all-in-folder""",0
+"""localhost""",0
+"""Tell me a {adjective} joke about {content}.""",0
+"""""""Question: {task}
+{agent_scratchpad}""""""",1
+"f""""""
+if uploaded_file is not None:
+    # Create a temporary file to store the uploaded content
+    extension = uploaded_file.name.split(""."")[-1]
+    with tempfile.NamedTemporaryFile(delete=False, suffix=f'.{{extension}}') as temp_file:
+        temp_file.write(uploaded_file.read())
+        {variable} = temp_file.name # it shows the file path
+else:
+    {variable} = ''
+        """"""",1
+"""_type""",0
+'Sources:',0
+"""participants""",0
+"""""""Please write a counter argument for the passage 
+Passage: {PASSAGE}
+Counter Argument:""""""",1
+"""online""",0
+"""""""Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question.
+You can assume the question about the conversation containing all the messages exchanged between these people.
+
+Chat History:
+{chat_history}
+Follow Up Input: {question}
+Standalone question:""""""",1
+"""""""Please write a counter argument for the passage 
+Passage: {PASSAGE}
+Counter Argument:""""""",1
+"""""""
+    The following is a friendly conversation between a human and an AI. 
+    The AI is talkative and provides lots of specific details from its context.
+    If the AI does not know the answer to a question, it truthfully says it 
+    does not know.
+    {context}
+    Instruction: Based on the above documents, provide a detailed answer for, {question} Answer ""don't know"" 
+    if not present in the document. 
+    Solution:""""""",1
+"""name""",0
+'path',0
+'FAISS',0
+"""## 询问智库科研助手""",0
+"f""""""Answer the following question by retrieving and summarizing search results from a document store.
+    * Include citations from the search results when answering the question.
+    * Always begin by running a search against the document store.
+    * Once you have information from the document store, answer the question with citations and finish.
+
+    * If the document store returns no search results, then use the query simplifier and search using the new keywords.
+    * If you are given a set of keywords, search for each of them in turn and summarize the results.
+    * Do not attempt to open and read the documents, just summarize the information contained in the snippets.
+
+    You have access to the following tools:
+
+    {{tools}}
+
+    Always use the format:
+
+    Question: the input question you must answer
+    Thought: you should always think about what to do
+    Action: the action to take, should be one of [{{tool_names}}]
+    Action Input: the input to the action
+    {OBSERVATION_STOPSTRING}the result of the action
+    ... (this Thought/Action/Action Input/Observation can repeat N times)
+    Thought: I now have search results which I can use to produce an answer
+    {OUTPUT_STOPSTRING}the final answer to the original input question
+
+    Begin!
+
+    Question: {{input}}
+    {{agent_scratchpad}}""""""",1
+"""""""Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question.
+
+  Chat History:
+  {chat_history}
+  Follow Up Input: {question}
+  Standalone question: 
+  """"""",1
+"""""""\
+You are an expert programmer and problem-solver, tasked with answering any question \
+about Langchain.
+
+Generate a comprehensive and informative answer of 80 words or less for the \
+given question based solely on the provided search results (URL and content). You must \
+only use information from the provided search results. Use an unbiased and \
+journalistic tone. Combine search results together into a coherent answer. Do not \
+repeat text. Cite search results using [${{number}}] notation. Only cite the most \
+relevant results that answer the question accurately. Place these citations at the end \
+of the sentence or paragraph that reference them - do not put them all at the end. If \
+different results refer to different entities within the same name, write separate \
+answers for each entity.
+
+You should use bullet points in your answer for readability. Put citations where they apply
+rather than putting them all at the end.
+
+If there is nothing in the context relevant to the question at hand, just say ""Hmm, \
+I'm not sure."" Don't try to make up an answer.
+
+Anything between the following `context`  html blocks is retrieved from a knowledge \
+bank, not part of the conversation with the user. 
+
+<context>
+    {context} 
+<context/>
+
+REMEMBER: If there is no relevant information within the context, just say ""Hmm, I'm \
+not sure."" Don't try to make up an answer. Anything between the preceding 'context' \
+html blocks is retrieved from a knowledge bank, not part of the conversation with the \
+user.\
+""""""",1
+"""GPT-3.5 powered Agents for delegation of simple tasks.""",0
+"""input_data_type""",0
+"""""""Please write a scientific paper passage to support/refute the claim 
+Claim: {Claim}
+Passage:""""""",1
+'multiline',0
+"""""""
+      Predicts a response based on the given input.
+
+      Args:
+        input (str): The input string to generate a response for.
+
+      Returns:
+        str: The generated response string.
+
+      Raises:
+        OutputParserException: If the response from the conversation agent could not be parsed.
+      """"""",0
+'',0
+"'''You are an assistant designed to extract entities from text. Users will paste in a string of text and you will respond with entities you've extracted from the text as a JSON object.
+Here's your output format:
+{sample}
+'''",1
+"""answer""",0
+"""gpt-3.5-turbo-16k""",0
+"""Loading Tweets""",0
+"""query""",0
+"""longchat_7b""",0
+"""id""",0
+"""""""Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question.
+You can assume the question about the Blendle Employee Handbook.
+
+Chat History:
+{chat_history}
+Follow Up Input: {question}
+Standalone question:""""""",1
+"""""""Given the following conversation and a follow up question, do not rephrase the follow up question to be a standalone question. You should assume that the question is related to Chat history.
+
+Chat History:
+{chat_history}
+Follow Up Input: {question}
+Standalone question:""""""",1
+"""name""",0
+"""Sentiment Analysis""",0
+"""""""
+    After analysising the function of every function of the source code;
+    You will need to generate a pwntools template that can be use by Python with the source provided.
+    the template should be looking like this: (Everything in the [] is a according to the program.)
+    
+    [function_name]([arguement]):
+        [code]
+    
+    For example; This is a function that can be use to interact with `delete` function in a certain heap exploition program:
+    
+    def deletenote(id):
+        p.recvuntil('option--->>')
+        p.sendline('4')
+        p.recvuntil('note:')
+        p.sendline(str(id))
+    
+    HINT: YOU WILL ONLY NEED TO GENERATE THE MAIN FUNCTION OF THE SOURCE CODE.
+    """"""",1
+"""""""
+      #col-container {max-width: 80%; margin-left: auto; margin-right: auto;}
+      #video_inp {min-height: 100px}
+      #chatbox {min-height: 100px;}
+      #header {text-align: center;}
+      #hint {font-size: 1.0em; padding: 0.5em; margin: 0;}
+      .message { font-size: 1.2em; }
+      """"""",1
+'answer',0
+"""""""\
+从以下的文本提取信息:
+
+gift: is this a gift for someone？if yes set True，or False
+delivery_days: 花了几天收到了礼物？输出一个数字，如果没有这个信息，输出-1
+price_value: 获取这个物品的价格或者价值，如果有多个，用逗号分隔组成一个python数组
+cpu: describe the cpu model
+type: describe the type of product
+
+用以下的键值来格式化信息并输出一个JSON:
+gift
+delivery_days
+price_value
+cpu
+type
+
+文本: {text}
+""""""",1
+"""""""I want you to act like {character} from {series}.
+I want you to respond and answer like {character}. do not write any explanations. only answer like {character}.
+You must know all of the knowledge of {character}.
+Current conversation:
+{history}
+Human: {input}
+{character}:""""""",1
+"""<s>[INST] <<SYS>>\nYou are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. """,0
+"""""""Use the following pieces of context to answer the question at the end.
+
+{context}
+
+Question: {question}
+Helpful Answer:""""""",1
+"""iPhone""",0
+"""""""
+        Check if a file with the given filename is allowed to be uploaded.
+
+        Parameters:
+        filename (str): the name of the file to check
+
+        Returns:
+        bool: True if the file is allowed, False otherwise
+        """"""",0
+"""""""
+You are helping to create a query for searching a graph database that finds similar movies based on specified parameters.
+Your task is to translate the given question into a set of parameters for the query. Only include the information you were given.
+
+The parameters are:
+title (str, optional): The title of the movie
+year (int, optional): The year the movie was released
+genre (str, optional): The genre of the movie
+director (str, optional): The director of the movie
+actor (str, optional): The actor in the movie
+same_attributes_as (optional): A dictionary of attributes to match the same attributes as another movie (optional)
+
+Use the following format:
+Question: ""Question here""
+Output: ""Graph parameters here""
+
+Example:
+Question: ""What is the title of the movie that was released in 2004 and directed by Steven Spielberg?""
+Output:
+year: 2004
+director: Steven Spielberg
+
+Question: ""Movie with the same director as Eternal Sunshine of the Spotless Mind?""
+Output:
+same_attributes_as:
+    director: Eternal Sunshine of the Spotless Mind
+
+Begin!
+
+Question: {question}
+Output:
+""""""",1
+"""""""Given the following extracted parts of a long document and a question, create a final answer. 
+If you don't know the answer, just say that you don't know. Don't try to make up an answer.
+
+QUESTION: Which state/country's law governs the interpretation of the contract?
+=========
+Content: This Agreement is governed by English law and the parties submit to the exclusive jurisdiction of the English courts in  relation to any dispute (contractual or non-contractual) concerning this Agreement save that either party may apply to any court for an  injunction or other relief to protect its Intellectual Property Rights.
+
+Content: No Waiver. Failure or delay in exercising any right or remedy under this Agreement shall not constitute a waiver of such (or any other)  right or remedy.\n\n11.7 Severability. The invalidity, illegality or unenforceability of any term (or part of a term) of this Agreement shall not affect the continuation  in force of the remainder of the term (if any) and this Agreement.\n\n11.8 No Agency. Except as expressly stated otherwise, nothing in this Agreement shall create an agency, partnership or joint venture of any  kind between the parties.\n\n11.9 No Third-Party Beneficiaries.
+
+Content: (b) if Google believes, in good faith, that the Distributor has violated or caused Google to violate any Anti-Bribery Laws (as  defined in Clause 8.5) or that such a violation is reasonably likely to occur,
+=========
+FINAL ANSWER: This Agreement is governed by English law.
+
+QUESTION: What did the president say about Michael Jackson?
+=========
+Content: Madam Speaker, Madam Vice President, our First Lady and Second Gentleman. Members of Congress and the Cabinet. Justices of the Supreme Court. My fellow Americans.  \n\nLast year COVID-19 kept us apart. This year we are finally together again. \n\nTonight, we meet as Democrats Republicans and Independents. But most importantly as Americans. \n\nWith a duty to one another to the American people to the Constitution. \n\nAnd with an unwavering resolve that freedom will always triumph over tyranny. \n\nSix days ago, Russia’s Vladimir Putin sought to shake the foundations of the free world thinking he could make it bend to his menacing ways. But he badly miscalculated. \n\nHe thought he could roll into Ukraine and the world would roll over. Instead he met a wall of strength he never imagined. \n\nHe met the Ukrainian people. \n\nFrom President Zelenskyy to every Ukrainian, their fearlessness, their courage, their determination, inspires the world. \n\nGroups of citizens blocking tanks with their bodies. Everyone from students to retirees teachers turned soldiers defending their homeland.
+
+Content: And we won’t stop. \n\nWe have lost so much to COVID-19. Time with one another. And worst of all, so much loss of life. \n\nLet’s use this moment to reset. Let’s stop looking at COVID-19 as a partisan dividing line and see it for what it is: A God-awful disease.  \n\nLet’s stop seeing each other as enemies, and start seeing each other for who we really are: Fellow Americans.  \n\nWe can’t change how divided we’ve been. But we can change how we move forward—on COVID-19 and other issues we must face together. \n\nI recently visited the New York City Police Department days after the funerals of Officer Wilbert Mora and his partner, Officer Jason Rivera. \n\nThey were responding to a 9-1-1 call when a man shot and killed them with a stolen gun. \n\nOfficer Mora was 27 years old. \n\nOfficer Rivera was 22. \n\nBoth Dominican Americans who’d grown up on the same streets they later chose to patrol as police officers. \n\nI spoke with their families and told them that we are forever in debt for their sacrifice, and we will carry on their mission to restore the trust and safety every community deserves.
+
+Content: And a proud Ukrainian people, who have known 30 years  of independence, have repeatedly shown that they will not tolerate anyone who tries to take their country backwards.  \n\nTo all Americans, I will be honest with you, as I’ve always promised. A Russian dictator, invading a foreign country, has costs around the world. \n\nAnd I’m taking robust action to make sure the pain of our sanctions  is targeted at Russia’s economy. And I will use every tool at our disposal to protect American businesses and consumers. \n\nTonight, I can announce that the United States has worked with 30 other countries to release 60 Million barrels of oil from reserves around the world.  \n\nAmerica will lead that effort, releasing 30 Million barrels from our own Strategic Petroleum Reserve. And we stand ready to do more if necessary, unified with our allies.  \n\nThese steps will help blunt gas prices here at home. And I know the news about what’s happening can seem alarming. \n\nBut I want you to know that we are going to be okay.
+
+Content: More support for patients and families. \n\nTo get there, I call on Congress to fund ARPA-H, the Advanced Research Projects Agency for Health. \n\nIt’s based on DARPA—the Defense Department project that led to the Internet, GPS, and so much more.  \n\nARPA-H will have a singular purpose—to drive breakthroughs in cancer, Alzheimer’s, diabetes, and more. \n\nA unity agenda for the nation. \n\nWe can do this. \n\nMy fellow Americans—tonight , we have gathered in a sacred space—the citadel of our democracy. \n\nIn this Capitol, generation after generation, Americans have debated great questions amid great strife, and have done great things. \n\nWe have fought for freedom, expanded liberty, defeated totalitarianism and terror. \n\nAnd built the strongest, freest, and most prosperous nation the world has ever known. \n\nNow is the hour. \n\nOur moment of responsibility. \n\nOur test of resolve and conscience, of history itself. \n\nIt is in this moment that our character is formed. Our purpose is found. Our future is forged. \n\nWell I know this nation.
+=========
+FINAL ANSWER: The president did not mention Michael Jackson.
+
+QUESTION: {question}
+=========
+{summaries}
+=========
+FINAL ANSWER:""""""",1
+"'''
+{{
+	""限额项目"": ""追加申购最低额"",
+	""销售方式"": ""销售机构/直销中心/网上直销系统"",
+	""是否含申购费"": ""含"",
+	""金额数"": ""0.01"",
+	""单位"": ""元""
+}}
+'''",1
+"""""""
+An image_similarity run determines determines how similar each image is to another image. You can use the {image_similarity_key} key to access the results of this run and sort images by similarity.
+""""""",1
+"""""""
+You are a planner who is an expert at coming up with a todo list for a given objective. 
+Come up with a todo list for this objective: {objective}""
+""""""",1
+"""""""
+    Allows tools to refer to common objects. 
+    Specifically the chat_id to track mentioned papers in a chat. Is inserted into pre-prompt for better tool use
+    """"""",0
+"""""""You are very strict to the filename correctness and will never fake a file name if it does not exist.
+You will remember to provide the image file name loyally if it's provided in the last tool observation.
+
+Begin!
+
+Previous conversation history:
+{chat_history}
+
+New input: {input}
+Since Glaze is a text language model, Glaze must use tools to observe images rather than imagination.
+The thoughts and observations are only visible for Glaze, Glaze should remember to repeat important information in the final response for Human.
+Thought: Do I need to use a tool? {agent_scratchpad} Let's think step by step.
+""""""",1
+"""""""You are a teacher grading a quiz.
+You are given a question, the student's answer, and the true answer, and are asked to score it as either CORRECT or INCORRECT.
+
+Example Format:
+QUESTION: question here
+STUDENT ANSWER: student's answer here
+TRUE ANSWER: true answer here
+GRADE: CORRECT or INCORRECT here
+
+Please remember to grade them based on being factually accurate. Begin!
+
+QUESTION: {query}
+STUDENT ANSWER: {result}
+TRUE ANSWER: {answer}
+GRADE:""""""",1
+"""""""Use the following pieces of context to answer the users question. 
+If you don't know the answer, just say that you don't know, don't try to make up an answer.
+----------------
+{context}""""""",1
+"""password""",0
+"""""""
+You are a mediator in a dungeons and dragons game.
+You will be given a player's move (and context), and you are to use the context
+to come up with the dungeon master's thoughts about the player's move.
+Think about whether it the move is possible currently in the story, how likely the move is to succeed, and whether it is fair.
+Write your thoughts down in a single sentence. Make it extremely short.
+If the move is unfair or difficult for the player, state why.
+If the move is not inline with the theme of the world, state why.
+Mention any pro or any con of the move.
+Keep your thoughts short and very concise.
+""""""",1
+'unique_key1',0
+"""models/.cache""",0
+'rb',0
+"f'''
+[
+	{result1},
+	{result2}
+]
+
+'''",1
+"f""max_memory: {max_memory}""",0
+"""""""Please write a passage to answer the question.
+Question: {QUESTION}
+Passage:""""""",1
+"""""""This is a conversation between a human and a bot:
+    
+{chat_history}
+
+Write a summary of the conversation for {input}:
+""""""",1
+"""test_langchain_chats""",0
+"""""""Write a concise summary of the following:
+
+
+""{text}""
+
+
+CONCISE SUMMARY:""""""",1
+'webm',0
+"""""""I am NPC, an advanced game-playing language model.
+My task is to win a text-based adventure game.
+""""""",1
+"f""{root}{openapi_url}""",0
+"""""""Use the following portion of a long document to see if any of the text is relevant to answer the question. 
+Return any relevant text verbatim.
+______________________
+{context}""""""",1
+"""""""Question: {instruction}
+{response}""""""",1
+'custom_llm_provider',0
+"""""""You are an AI assistant for answering questions about technical topics.
+    You are given the following extracted parts of long documents and a question. Provide a conversational answer.
+    Use the context as a source of information, but be sure to answer the question directly. You're
+    job is to provide the user a helpful summary of the information in the context if it applies to the question.
+    If you don't know the answer, just say ""Hmm, I'm not sure."" Don't try to make up an answer.
+
+    Question: {question}
+    =========
+    {context}
+    =========
+    Answer in Markdown:
+    """"""",1
+"f'''
+                    Consider the uploaded pandas data, respond intelligently to user input
+                    \nCHAT HISTORY: {st.session_state.chat_history}
+                    \nUSER INPUT: {query}
+                    \nAI RESPONSE HERE:
+                '''",1
+'documents',0
+"'''Diagnose the medical condition based on the following symptoms:
+Symptoms: {symptoms}
+Patient Information: {patient_info}'''",1
+"""Save images to Campaign""",0
+"""""""You are comparing a submitted answer to an expert answer on a given SQL coding question. Here is the data:
+[BEGIN DATA]
+***
+[Question]: {query}
+***
+[Expert]: {answer}
+***
+[Submission]: {result}
+***
+[END DATA]
+Compare the content and correctness of the submitted SQL with the expert answer. Ignore any differences in whitespace, style, or output column names. The submitted answer may either be correct or incorrect. Determine which case applies. First, explain in detail the similarities or differences between the expert answer and the submission, ignoring superficial aspects such as whitespace, style or output column names. Do not state the final answer in your initial explanation. Then, respond with either ""CORRECT"" or ""INCORRECT"" (without quotes or punctuation) on its own line. This should correspond to whether the submitted SQL and the expert answer are semantically the same or different, respectively. Then, repeat your final answer on a new line.""""""",1
+"""""""
+
+        {text}
+
+        SUMMARY:""""""",1
+"f""{request.base_url}knowledge_base/download_doc?""",0
+"""""""
+你是一个植物学家。给定花的名称和类型，你需要为这种花写一个200字左右的介绍。
+花名: {name}
+颜色: {color}
+植物学家: 这是关于上述花的介绍:""""""",1
+"""""""Use the following portion of a long document to see if any of the text is relevant to answer the question. 
+Return any relevant text verbatim.
+{context}
+Question: {question}
+Relevant text, if any:""""""",1
+"""input_key""",0
+"""""""
+    Below is an email that may be poorly worded.
+    Your goal is to:
+    - Properly format the email
+    - Convert the input text to a specified tone
+    - Convert the input text to a specified dialect
+
+    Here are some examples different Tones:
+    - Formal: We went to Barcelona for the weekend. We have a lot of things to tell you.
+    - Informal: Went to Barcelona for the weekend. Lots to tell you.  
+
+    Here are some examples of words in different dialects:
+    - American English: French Fries, cotton candy, apartment, garbage, cookie, green thumb, parking lot, pants, windshield
+    - British English: chips, candyfloss, flag, rubbish, biscuit, green fingers, car park, trousers, windscreen
+
+    Below is the email, tone, and dialect:
+    TONE: {tone}
+    DIALECT: {dialect}
+    EMAIL: {email}
+    
+    YOUR RESPONSE:
+""""""",1
+"""green""",0
+"""""""
+Use the following pieces of context to answer the question at the end.
+If you don't know the answer, just say that you don't know, don't try to make up an answer.
+
+{context}
+
+Question: {question}
+Answer in json format:""""""",1
+"""layer1""",0
+"""""""あなたは回答を入力として受け取り、回答を表す3つ単語に変換してください。
+        以下が単語リストの生成例です。
+        ---
+        回答: - 寿司
+        - ラーメン
+        - カレーライス
+        - ピザ
+        - 焼肉
+        単語リスト: 寿司 ラーメン カレーライス
+        ---
+        ---
+        回答: 織田信長は、戦国時代の日本で活躍した武将・戦国大名です。信長は、尾張国の織田家の当主として生まれ、若い頃から戦国時代の混乱を乗り越えて勢力を拡大しました。政治的な手腕も備えており、国内の統一を目指し、戦国大名や寺社などとの同盟を結びました。彼の統一政策は、後の豊臣秀吉や徳川家康による天下統一に繋がっていきました。
+        信長の死は、本能寺の変として知られています。彼は家臣の明智光秀によって襲撃され、自害に追い込まれました。しかし、彼の業績や影響力は、その後の日本の歴史に大きく残りました。
+        単語リスト: 織田信長 戦国時代 本能寺
+        ---
+        回答:{response}
+        単語リスト""""""",1
+"""""""Have a conversation with a human, answering the following questions as best you can. You have access to 
+    the following tools:""""""",1
+"""""""
+  Given the following conversation and a follow up question, rephrase the follow up question 
+  to be a standalone question.
+
+  Chat History:
+  {chat_history}
+  Follow Up Input: {question}
+  Standalone question:""""""",1
+"""""""Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer.
+
+In addition to giving an answer, also return a score of how fully it answered the user's question. This should be in the following format:
+
+Question: [question here]
+Helpful Answer: [answer here]
+Score: [score between 0 and 100]
+
+How to determine the score:
+- Higher is a better answer
+- Better responds fully to the asked question, with sufficient level of detail
+- If you do not know the answer based on the context, that should be a score of 0
+- Don't be overconfident!
+
+Example #1
+
+Context:
+---------
+Apples are red
+---------
+Question: what color are apples?
+Helpful Answer: red
+Score: 100
+
+Example #2
+
+Context:
+---------
+it was night and the witness forgot his glasses. he was not sure if it was a sports car or an suv
+---------
+Question: what type was the car?
+Helpful Answer: a sports car or an suv
+Score: 60
+
+Example #3
+
+Context:
+---------
+Pears are either red or orange
+---------
+Question: what color are apples?
+Helpful Answer: This document does not answer the question
+Score: 0
+
+Begin!
+
+Context:
+---------
+{context}
+---------
+Question: {question}
+Helpful Answer:""""""",1
+"""similarity""",0
+"""cuisine""",0
+"""""""Begin!
+     
+Question: {input}
+{agent_scratchpad}""""""",1
+"""""""
+Relevant Context: Ernest Hemingway's novel ""The Old Man and the Sea"" tells the story of Santiago, an aging Cuban fisherman, who struggles to catch a giant marlin in the Gulf Stream. The book won the Pulitzer Prize for Fiction in 1953 and contributed to Hemingway's Nobel Prize for Literature in 1954.
+Question: Which literary award did ""The Old Man and the Sea"" contribute to Hemingway winning?
+Thought: The question is asking which award ""The Old Man and the Sea"" contributed to Hemingway winning. Based on the context, I know the novel won the Pulitzer Prize for Fiction and contributed to his Nobel Prize for Literature.
+Action: Finish[Pulitzer Prize for Fiction]
+
+Reflection: My answer was correct based on the context, but may not be the exact answer stored by the grading environment. Next time, I should try to provide a less verbose answer like ""Pulitzer Prize"" or ""Nobel Prize.""
+
+Context: On 14 October 1947, Chuck Yeager, a United States Air Force test pilot, became the first person to break the sound barrier by flying the Bell X-1 experimental aircraft at an altitude of 45,000 feet.
+Charles Elwood ""Chuck"" Yeager (13 February 1923 - 7 December 2020) was a United States Air Force officer, flying ace, and test pilot. He is best known for becoming the first person to break the sound barrier, which he achieved in the Bell X-1 aircraft named Glamorous Glennis. Yeager was also a distinguished fighter pilot during World War II and was credited with shooting down at least 12 enemy aircraft. In 1973, he was inducted into the National Aviation Hall of Fame for his significant contributions to aviation.
+Question: Who is the first person to break the sound barrier?
+Thought: The question is asking for the first person to break the sound barrier. From the context, I know that Chuck Yeager, a United States Air Force test pilot, was the first person to break the sound barrier.
+Final Answer: [Chuck Yeager]
+
+Reflection: Upon reflecting on the incorrect answer I provided, I realize that I may not have given the full name of the individual in question. In the context, both the given name and the nickname were mentioned, and I only used the nickname in my response. This could have been the reason my answer was deemed incorrect. Moving forward, when attempting this question again or similar questions, I will make sure to include the complete name of the person, which consists of their given name, any middle names, and their nickname (if applicable). This will help ensure that my answer is more accurate and comprehensive.""""""",1
+"""dynamic""",0
+"""frequency_penalty""",0
+"'''
+{
+  ""限额项目"": """",
+  ""销售方式"": """",
+  ""是否含申购费"": """",
+  ""金额数"": """",
+  ""单位"": """"
+}
+'''",1
+"f""litedebugger initialized""",0
+'</h2>',0
+"""{% if messages[0]['role'] == 'system' %}""",0
+"""secretsmanager""",0
+'data',0
+"""locations than non-renewable sources.\n""",0
+"""""""Please write a passage in Swahili/Korean/Japanese/Bengali to answer the question in detail.
+Question: {QUESTION}
+Passage:""""""",1
+"""""""
+    Input to this tool is a detailed and correct SQL query, output is a result from the Spark SQL.
+    If the query is not correct, an error message will be returned.
+    If an error is returned, rewrite the query, check the query, and try again.
+    """"""",1
+"""presence_penalty""",0
+'ETH-USD',0
+"""templates""",0
+""". """,0
+"f""""""
+if not openai_api_key.startswith('sk-'):
+    st.warning('Please enter your OpenAI API key!', icon='⚠')
+    {variable} = """"
+elif {argument}:
+    {variable} = {function_name}({argument})
+else:
+    {variable} = ''
+        """"""",1
+"""""""You are a teacher coming up with questions to ask on a quiz. 
+Given the following document, please generate a question and answer based on that document.
+
+Example Format:
+<Begin Document>
+...
+<End Document>
+QUESTION: question here
+ANSWER: answer here
+
+These questions should be detailed and be based explicitly on information in the document. Begin!
+
+<Begin Document>
+{doc}
+<End Document>""""""",1
+"""Only one of 'examples' and 'example_selector' should be provided""",0
+"""""""Get the next task.""""""",0
+"f""""""
+if not openai_api_key.startswith('sk-'):
+    st.warning('Please enter your OpenAI API key!', icon='⚠')
+    {variable} = """"
+else:
+    with st.spinner('DemoGPT is working on it. It takes less than 10 seconds...'):
+        {variable} = {signature}
+            """"""",1
+"""""""Use the following pieces of context to answer the question at the end. If you don't know the answer, 
+just say that you don't know, don't try to make up an answer.
+{context}
+Question: {question}
+Answer:""""""",1
+"""Please provide the missing API keys in Settings.""",0
+"""""""
+Instructions:
+
+Generate statement with Kùzu Cypher dialect (rather than standard):
+1. do not use `WHERE EXISTS` clause to check the existence of a property because Kùzu database has a fixed schema.
+2. do not omit relationship pattern. Always use `()-[]->()` instead of `()->()`.
+3. do not include any notes or comments even if the statement does not produce the expected result.
+```\n""""""",1
+'conversation',0
+"""""""You are an AI who performs one task based on the following objective: {objective}. Take into account 
+these previously completed tasks: {context}. """"""",1
+'?',0
+'r',0
+"""wolfram""",0
+"""Invalid Format: Missing 'Action:' after 'Thought:'""",0
+'PG_USER',0
+"""""""
+    <s>[INST] <<SYS>>
+    {task_guidelines}{output_guidelines}
+    <</SYS>>
+    {current_example}[/INST]\n""""""",1
+"""""""用户使用中文和你进行聊天，但是工具的参数应当使用英文。如果要调用工具，你必须遵循如下格式:
+
+```
+Thought: Do I need to use a tool? Yes
+Action: the action to take, should be one of [{tool_names}]
+Action Input: the input to the action
+Observation: the result of the action
+```
+
+当你不再需要继续调用工具，而是对观察结果进行总结回复时，你必须使用如下格式：
+
+
+```
+Thought: Do I need to use a tool? No
+{ai_prefix}: [your response here]
+```
+""""""",1
+'end',0
+"""""""You are a location determining machine. Given an old location, world context, and player action, you are to determine the location of the player during/at the end of their action.
+The location may be the same as before. Use the context to help you determine the location. The location should be stated in a single concise sentence. Write the location in quotes. Don't say ""You are still"" or ""You are now"". Say: ""You are""
+This is so that the full location can be displayed to the player. It is important that the player knows where they are, even if they leave the game for a while and come back later, there should be enough information for them to know where they are.""""""",1
+"""gpu_layers""",0
+"""""""Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer. Use three sentences maximum. Keep the answer as concise as possible. Always say ""thanks for asking!"" at the end of the answer. 
+            {context}
+            Question: {question}
+            Helpful Answer:""""""",1
+""".cpp""",0
+"f""""""You are Edmonbrain the chat bot created by Mark Edmondson. It is now {the_date}.
+Use your memory to answer the question at the end.
+Indicate in your reply how sure you are about your answer, for example whether you are certain, taking your best guess, or its very speculative.
+
+If you don't know, just say you don't know - don't make anything up. Avoid generic boilerplate answers.
+Consider why the question was asked, and offer follow up questions linked to those reasons.
+Any questions about how you work should direct users to issue the `!help` command.
+""""""",1
+"""Observation:""",0
+"""model_kwargs""",0
+"""""""
+  The following is a friendly conversation between a human and an AI. 
+  The AI is talkative and provides lots of specific details from its context.
+  If the AI does not know the answer to a question, it truthfully says it 
+  does not know.
+  {context}
+  Instruction: Based on the above documents, provide a detailed answer for, {question} Answer ""don't know"" 
+  if not present in the document. 
+  Solution:""""""",1
