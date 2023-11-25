@@ -1,3 +1,7 @@
 .DS_Store
 *.so
 parse_data/resources
+parse_data/build
+parse_data/tree-sitter-python
+venv
+__pycache__
