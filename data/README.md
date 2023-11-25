@@ -20,3 +20,7 @@ About 101 out of 1000 repositories contain prompt files.
 ### Collecting prompt files
 We then collect URL for the raw file content of the prompt files for all the 101 repositories. 
 This way, it will be easier to manually work with those files.
+
+### Using gh api
+
+`gh search code "from openai import OpenAI" --limit 100 --language "python" > res4.json`

@@ -226,12 +226,18 @@ class PromptDetector:
             print()
 
         print(f"Parser Returns result for {count} files out of 1444 files")
-        return prompts
+        return list(prompts)
 
     def _detect_prompts(self, filename: str):
         with open(filename, "rb") as f:
             tree = self.parser.parse(f.read())
 
-        results = {heuristic.__name__: heuristic(tree) for heuristic in self.heuristics}
+        results = {}
+        for heuristic in self.heuristics:
+            try:
+                results[heuristic.__name__] = heuristic(tree)
+            except Exception as e:
+                print(f"Error in {heuristic.__name__} for {filename}")
+                print(e)
 
         return {filename: results}
