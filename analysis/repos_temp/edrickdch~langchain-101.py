@@ -1,0 +1,3 @@
+"""Word: {word}
+Antonym: {antonym}
+"""

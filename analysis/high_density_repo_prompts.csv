@@ -1,7 +1,7 @@
 prompts
 "f""""""
 uploaded_file = st.file_uploader(""{title}"", type={data_type}, key='{variable}')
-        """""""
+"""""""
 "f""""""
 if uploaded_file is not None:
     # Create a temporary file to store the uploaded content
