@@ -3,7 +3,7 @@ from tree_sitter import Language, Parser, Tree, Node
 from tqdm import tqdm
 
 if not os.path.exists("build/my-languages.so"):
-    Language.build_library("build/my-languages.so", ["tree-sitter-python"])
+    Language.build_library("build/my-languages.so", ["vendor/tree-sitter-python"])
 
 PY_LANGUAGE = Language("./build/my-languages.so", "python")
 
