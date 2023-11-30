@@ -3,17 +3,22 @@ import json, time, pygame, utils
 
 username = utils.get_github_credentials()["username"]  # Replace with your own username
 password = utils.get_github_credentials()["password"]  # Replace with your own password.
-library = "anthropic"  # Replace with the library you want to search for
+library = "llamaindex"  # Replace with the library you want to search for
 
-characters = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "_", "a", "b", "c", "d", "e", "f", "g", "h", "i",
-              "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "v", "u", "w", "x", "y", "z"]
-two_char_combinations = [f"{char1}{char2}" for char1 in characters for char2 in characters]
+two_char_combinations = ["all"]
 charCombo_to_results = {}
 
 if __name__ == "__main__":
+    """
+    THIS SCRAPER IS MADE FOR ONE-TIME USE ONLY.
+
+    Llamaindex only has 91 results, so we can just search for "all" and get all the results. 
+    No need to loop through all the two character combinations.
+    """
+
     with sync_playwright() as p:
         # You can pick your browser of choice: chromium, firefox, webkit
-        browser = p.chromium.launch(headless=True)  # Set headless=False to watch the magic happen!
+        browser = p.chromium.launch(headless=False)  # Set headless=False to watch the magic happen!
         page = browser.new_page()
 
         # Navigate to our starting point
@@ -29,7 +34,7 @@ if __name__ == "__main__":
         for charCombo in two_char_combinations:
             for i in range(1, 6):
                 # Go to Code Search
-                page.goto(f'https://github.com/search?q=%22from+{library}%22+OR+%22import+{library}%22+language%3Apython+path%3A{charCombo}*&type=code&ref=advsearch&p={i}')
+                page.goto(f'https://github.com/search?q=%22from+{library}%22+OR+%22import+{library}%22+language%3Apython&type=code&ref=advsearch&p={i}')
 
                 # Keep waiting while we are still rate limited
                 wait_count = 1
@@ -45,10 +50,10 @@ if __name__ == "__main__":
                     wait_count *= 2
                     wait_count = min(wait_count, 60)
 
-                # Search is failing, play alarm!!!
+                # If Hourly Request Limit is reached, play alarm
                 while page.is_visible(".cKVTEn"):
                         print("##################################################")
-                        print("Search is failing.")
+                        print("Hourly Request Limit Reached.")
                         print("##################################################")
                         # for playing audio.wav file
                         pygame.mixer.init()
