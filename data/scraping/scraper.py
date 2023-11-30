@@ -1,19 +1,16 @@
 from playwright.sync_api import sync_playwright
-import json, time, pygame
+import json, time, pygame, utils
 
-username = "DJPAUL2001"  # Replace with your own username
-password = "Pl3453D0N07H4ckM3!"  # Replace with your own password.
-library = "openai"  # Replace with the library you want to search for
+username = utils.get_github_credentials()["username"]  # Replace with your own username
+password = utils.get_github_credentials()["password"]  # Replace with your own password.
+library = "cohere"  # Replace with the library you want to search for
 
 characters = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "_", "a", "b", "c", "d", "e", "f", "g", "h", "i",
               "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "v", "u", "w", "x", "y", "z"]
 two_char_combinations = [f"{char1}{char2}" for char1 in characters for char2 in characters]
-
-
+charCombo_to_results = {}
 
 if __name__ == "__main__":
-    charCombo_to_results = {}
-
     with sync_playwright() as p:
         # You can pick your browser of choice: chromium, firefox, webkit
         browser = p.chromium.launch(headless=False)  # Set headless=False to watch the magic happen!
@@ -42,12 +39,25 @@ if __name__ == "__main__":
                     print(f"{text}\n")
                     print(f"Still rate limited. Waiting {wait_count} second.")
                     print("##################################################")
-                    page.wait_for_timeout(wait_count* 1000)  # Wait for wait_count seconds
+                    page.wait_for_timeout(wait_count * 1000)  # Wait for wait_count seconds
                     # Reload
                     page.reload()
                     wait_count *= 2
                     wait_count = min(wait_count, 60)
-                
+
+                # If Hourly Request Limit is reached, play alarm
+                while page.is_visible(".cKVTEn"):
+                        print("##################################################")
+                        print("Hourly Request Limit Reached.")
+                        print("##################################################")
+                        # for playing audio.wav file
+                        pygame.mixer.init()
+                        pygame.mixer.music.load("alarm.wav")
+                        # Keep playing the sound in a loop
+                        while True:
+                            time.sleep(1)
+                            pygame.mixer.music.play()
+
                 # Wait for the page to load
                 page.wait_for_selector(".cgQapc")
 
@@ -70,7 +80,7 @@ if __name__ == "__main__":
                     break
                 
                 # Print out the results
-                print(f"charCombo: {charCombo}; Total Files: {num_results}; Extracted: {len(charCombo_to_results[charCombo]['hrefs'])} files; Page: {i};")
+                print(f"charCombo: {charCombo}; Total: {num_results}; Extracted: {len(charCombo_to_results[charCombo]['hrefs'])} files; Page: {i};")
 
         # Close the browser
         browser.close()
