@@ -1,5 +1,5 @@
 from playwright.sync_api import sync_playwright
-import json
+import json, time, pygame
 
 username = "DJPAUL2001"  # Replace with your own username
 password = "Pl3453D0N07H4ckM3!"  # Replace with your own password.
@@ -80,3 +80,11 @@ if __name__ == "__main__":
         json.dump(charCombo_to_results, f)
 
     print("Done!")
+
+    # for playing audio.wav file
+    pygame.mixer.init()
+    pygame.mixer.music.load("alarm.wav")
+    # Keep playing the sound in a loop
+    while True:
+        time.sleep(1)
+        pygame.mixer.music.play()
