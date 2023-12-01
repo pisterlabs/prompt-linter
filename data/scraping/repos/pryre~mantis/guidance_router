@@ -1,0 +1,22 @@
+#!/usr/bin/env python2
+
+import sys
+from math import *
+
+import roslib
+roslib.load_manifest('mantis_planner')
+import rospy
+import actionlib
+
+from mantis_planner.movement_router import GuidanceRouter
+
+if __name__ == '__main__':
+	rospy.init_node('guidance_router')
+	server = GuidanceRouter()
+
+	rospy.loginfo("Loaded guidance router")
+
+	try:
+		rospy.spin()
+	except rospy.ROSInterruptException:
+		pass

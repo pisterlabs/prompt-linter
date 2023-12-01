@@ -1,0 +1,43 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+# generate images with OpenAI DALL·E models
+
+import os
+import uuid
+import openai
+import urllib.request
+import argparse
+from PIL import Image
+
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-p", "--prompt", type=str, required=True, help="text prompt to generate image")
+parser.add_argument("-s", "--size", choices=['small', 'medium', 'large'], type=str, default="small", help="choose image size (default: small)")
+parser.add_argument("-c", "--count", choices=range(1,11), type=int, default=1, help="you can request 1-10 images at a time (default: 1)")
+parser.add_argument("-d", "--dir", type=str, default=".", help="set path to directory for downloaded images (default: current directory)")
+ARGS = parser.parse_args()
+
+IMAGE_SIZE = {
+  "small":  "256x256",
+  "medium": "512x512",
+  "large":  "1024x1024",
+}
+
+response = openai.Image.create(
+  prompt = ARGS.prompt,
+  size   = IMAGE_SIZE[ARGS.size],
+  n      = ARGS.count,
+)
+
+for url in response['data']:
+  file_name = str(uuid.uuid1()) + ".png"
+  file_path = "{}/{}".format(ARGS.dir, file_name)
+  # download file
+  urllib.request.urlretrieve(url['url'], file_path)
+  # open file
+  image = Image.open(file_path)
+  image.show()
+  # print info
+  print("Image file saved in {}".format(file_path))

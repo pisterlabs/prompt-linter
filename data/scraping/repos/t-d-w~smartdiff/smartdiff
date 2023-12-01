@@ -1,0 +1,52 @@
+#!/usr/bin/env python
+
+import argparse
+import difflib
+import subprocess
+import openai
+import utils.request_utils as req_utils
+
+def create_prompt(diff_text_in, file1, file2):
+    start="The diff output shows the difference between two files. It uses < to indicate lines from the first file and > to indicate lines from the second file. It also shows the line number where the difference appears in both files.\n\nThis is the diff output for " + file1 + " and "+file2+":\n"
+    tee="The person reading the following explanation does not want to open the files, they just want an explanation of differences conceptually. In a numbered list format (with no spaces between lines), explain all the differences between "+file1+" and "+file2+" and what it might mean in the context of these files.\nPlease put it in the following format:\n1. some difference explanation that is less than 4 sentences.\n2. another difference explanation that is less than 4 sentences.\n\nHere is the explanation:"
+    #print(start)
+    #print(tee)
+    #print(diff_text_in)
+    retval=start+str(diff_text_in)+tee
+    return retval
+
+# Create an ArgumentParser object
+parser = argparse.ArgumentParser()
+
+# Add the filenames as arguments
+parser.add_argument("file1", help="First file")
+parser.add_argument("file2", help="Second file")
+
+# Parse the command-line arguments
+args = parser.parse_args()
+
+
+diffrun = subprocess.run(['diff', args.file1, args.file2], capture_output=True, text=True)
+diff_text = diffrun.stdout
+# Print the output of the 'diff' command
+#print(diff_text)
+
+# Print the output of the 'diff' command
+
+tokens_count = len(diff_text.split())
+
+#print("diff tokens:", tokens_count)
+if tokens_count > 1000:
+    print('Too many differences between these files. Exiting.')
+    exit(1)
+
+prompt = create_prompt(diff_text, args.file1, args.file2)
+
+out = req_utils.apireq_text_completion(prompt, 1000, 0)
+explanation = out['choices'][0]['text']
+print("\nHere are the differences between the two files:")
+print(explanation)
+print("\n")
+
+
+# Print the length of the output

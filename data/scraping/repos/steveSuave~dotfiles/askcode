@@ -1,0 +1,74 @@
+#!/usr/bin/env python3
+
+# https://python.langchain.com/docs/use_cases/question_answering/code_understanding
+# pip install openai tiktoken chromadb langchain
+
+# Set env var OPENAI_API_KEY or load from a .env file
+# import dotenv
+# dotenv.load_dotenv()
+import os
+import constants
+os.environ["OPENAI_API_KEY"] = constants.APIKEY
+
+import sys
+project = sys.argv[1]
+question = sys.argv[2]
+
+from langchain.document_loaders.generic import GenericLoader
+from langchain.document_loaders.parsers import LanguageParser
+from langchain.text_splitter import Language
+
+# Clone
+# from git import Repo
+# repo = Repo.clone_from("https://github.com/langchain-ai/langchain", to_path=repo_path)
+repo_path = "$HOME/Code/"
+
+# Load
+loader = GenericLoader.from_filesystem(
+    repo_path + project,
+    glob="**/*",
+    suffixes=[".java",".groovy"],
+    parser=LanguageParser(language=Language.PYTHON, parser_threshold=500),
+)
+documents = loader.load()
+# print(len(documents))
+
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+python_splitter = RecursiveCharacterTextSplitter.from_language(
+    language=Language.PYTHON, chunk_size=2000, chunk_overlap=200
+)
+texts = python_splitter.split_documents(documents)
+# print(len(texts))
+
+from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain.vectorstores import Chroma
+
+db = Chroma.from_documents(texts, OpenAIEmbeddings(disallowed_special=()))
+retriever = db.as_retriever(
+    search_type="mmr",  # Also test "similarity"
+    search_kwargs={"k": 8},
+)
+
+from langchain.chains import ConversationalRetrievalChain
+from langchain.chat_models import ChatOpenAI
+from langchain.memory import ConversationSummaryMemory
+
+llm = ChatOpenAI(model_name="gpt-4")
+memory = ConversationSummaryMemory(
+    llm=llm, memory_key="chat_history", return_messages=True
+)
+qa = ConversationalRetrievalChain.from_llm(llm, retriever=retriever, memory=memory)
+
+result = qa(question)
+print(result["answer"])
+
+# questions = [
+#     "What is the class hierarchy?",
+#     "What classes are derived from the Chain class?",
+#     "What one improvement do you propose in code in relation to the class hierarchy for the Chain class?",
+# ]
+
+# for question in questions:
+#     result = qa(question)
+#     print(f"-> **Question**: {question} \n")
+#     print(f"**Answer**: {result['answer']} \n")
