@@ -1,0 +1,99 @@
+#!/usr/bin/env python3
+
+import argparse
+import os
+import time
+import sys
+from datetime import datetime
+
+import cv2
+from dalle_pytorch import OpenAIDiscreteVAE, DALLE
+import numpy as np
+import pyscreenshot
+from PIL import Image
+import torch
+from tqdm import tqdm
+tqdm.monitor_interval = 0
+
+vae = OpenAIDiscreteVAE()
+f = open('./log.txt', mode='a')
+
+def to_tensor(x, device=None):
+    x = torch.tensor(x, device=device, dtype=torch.float32).unsqueeze(0).permute(0, 3, 1, 2) / 255.0
+
+    return x
+
+
+def to_numpy(x):
+    x = x.permute(0, 2, 3, 1).squeeze(0)
+    x = x.clamp(min=0.) * 255
+    x = x.cpu().detach().numpy()
+
+    return x
+
+def show_notification(title, body):
+    os.system('osascript -e \'display notification "%s" with title "%s"\'' % (body, title))
+
+
+def save_image(image, file_path):
+    # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    cv2.imwrite(file_path, image)
+
+
+def capture_and_save(task):
+    timestamp = datetime.now().strftime('%Y%m%d-%H%M%S')
+
+    im = pyscreenshot.grab()
+    width, height = im.size
+    target_size = 256
+    shrink_factor = target_size / max(width, height)
+    new_width = int(width * shrink_factor); new_height = int(height * shrink_factor)
+    im = im.resize((new_width, new_height), Image.LANCZOS)
+    im = im.crop((-(target_size - new_width) / 2, -(target_size - new_height) / 2,
+                   (target_size + new_width) / 2,  (target_size + new_height) / 2))
+
+    im = np.array(im)[:, :, :3]     # convert to numpy, remove alpha channel
+    im = im[:, :, ::-1].copy()      # flip channels
+    z = vae.get_codebook_indices(to_tensor(im))
+    im_recon = vae.decode(z)
+    im_recon = to_numpy(im_recon)
+
+    filename = 'images/%s.png' % timestamp
+    save_image(im, filename)
+
+    filename = 'images/%s-recon.png' % timestamp
+    save_image(im_recon, filename)
+
+    f.write(timestamp)
+    f.write(' ')
+    f.write(task)
+    f.write(' ')
+    f.write(' '.join([str(v) for v in z[0].numpy()]))
+    f.write('\n')
+    f.flush()
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--num-pomodori', type=int, default=4)
+    parser.add_argument('--task', type=str, default='default')
+    args = parser.parse_args()
+
+    starttime = time.time()
+    for i in range(1, args.num_pomodori + 1):
+        print('Pomodoro #%i (started on %s)' % (i, datetime.now().strftime('%Y%m%d-%H%M%S')))
+        show_notification('pomo', 'work started')
+        # pomorodo
+        for _ in tqdm(range(25), ncols=80):
+            capture_and_save(args.task)
+            time.sleep(60.0 - ((time.time() - starttime) % 60.0))
+        # break
+        show_notification('pomo', 'break started')
+        for _ in tqdm(range(5), ncols=80):
+            capture_and_save(args.task)
+            time.sleep(60.0 - ((time.time() - starttime) % 60.0))
+
+
+if __name__ == '__main__':
+    main()
+

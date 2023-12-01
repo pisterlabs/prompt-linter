@@ -1,0 +1,105 @@
+#!/usr/bin/python3
+import os
+import openai
+import sys    
+import shutil 
+import signal 
+
+openai.api_key = os.getenv("OPENAI_API_KEY")
+execute = False
+copy = False
+help_needed = False
+
+# Handle Ctrl+C
+signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+def main():
+  # determine if -x, -c, or -h is passed
+  determineFlags(sys.argv)
+
+  # question is last element [2 or 3] of sys.argv
+  question = sys.argv[-1]
+
+  # call GPT-3 davinci model
+  response = callGPT(question)
+
+  # remove \n from response
+  response = response['choices'][0]['text'].replace("\n", "").strip()
+
+  # output response, execute if -x, copy if -c
+  output(response)
+
+def callGPT(question):
+  response = openai.Completion.create(
+    model="text-davinci-003",
+    prompt= "Tell me what you want to do and I will give the unix command.\n\nQ:  copy a file\ncp filename.txt destination_filename.txt\nQ: duplicate a folder?\ncp -a source_folder/ destination_folder/\nQ: display a calendar\ncal\nQ: convert a .heic file to jpg\nconvert source.heic destination.jpg\nQ: navigate to desktop\ncd ~/Desktop/\nQ: shutdown computer\nsudo shutdown -h now\nQ: check how much space is left on this computer\ndf -h\nQ: find x.txt on system\nfind . -name x.txt\nQ: delete entire dir and its contents\nrm -rf dir\nQ: list the files in a directory\nls\nQ: " + question + "\nA: ",
+    temperature=0.0,
+    max_tokens=256,
+    top_p=1,
+    frequency_penalty=0,
+    presence_penalty=0,
+  )
+
+  return response
+
+def determineFlags(argv):
+  global execute
+  global copy
+  global help_needed
+
+  # if -x option is passed, set execute to True
+  # if -c option is passed, set copy to True
+  # if -h option is passed, set help to True
+  # if -h and -x or -c are passed, print error and exit
+  if len(argv) > 1:
+      if "-x" in argv:
+        execute = True
+      if "-c" in argv:
+        copy = True
+      if "-h" in argv:
+        help_needed = True
+      if "-h" in argv and ("-x" in argv or "-c" in argv):
+        print("Error: -h option cannot be used with -x or -c")
+        sys.exit(1)      
+      if help_needed:
+        print("Usage: cbot [-x] [-c]\n\n-x\tExecute command: CTRL+C to cancel command\n-c\tCopy command to clipboard: Requires xclip")
+        sys.exit()
+  else:
+      print("Error: No question specified")
+      sys.exit(1)
+
+
+def output(response):
+    # if -x in argument, execute the command
+  if execute:
+    # print command that will be executed in green bold
+    print("\033[91m" + "Press ENTER to execute: " +"\033[0m"+ "\033[1;34m" + response + "\033[0m")
+
+    # if user presses enter, execute command()
+    if input() == "":
+      os.system(response)
+    else:
+      sys.exit(1)
+
+  # if -c in argument, copy the command to clipboard
+  if copy:
+      # check if xclip is installed using subprocess
+      if shutil.which("xclip") is None:
+        # print 'Copying to clipboard requires xclip to be installed, please install xclip and try again' in red
+        print('\033[91m' + "Copying to clipboard requires xclip to be installed, please install xclip and try again" + '\033[0m')
+        sys.exit(1)
+      else:
+
+        # copy response to clipboard using shutil
+        os.system("echo \"" + response + "\" | xclip -selection clipboard")
+        print( "\033[1;34m" + response + "\033[0m")
+        print("\033[1;34m" + "Command copied to clipboard."  + "\033[0m")
+  
+  if not copy and not execute:
+    # print response in red
+    print("\033[1;34m" + response + "\033[0m")
+    # print(response + '...')
+
+
+if __name__ == "__main__":
+  main()

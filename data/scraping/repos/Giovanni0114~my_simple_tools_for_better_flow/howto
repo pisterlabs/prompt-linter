@@ -1,0 +1,29 @@
+#!/usr/bin/python3
+
+import openai
+import sys
+import os
+
+dir_path = os.path.dirname(os.path.realpath(__file__))
+
+with open(f"{dir_path}/api_key.txt") as f:
+  openai.api_key = f.read().strip()
+
+distro = os.getenv("HOWTO_DISTRO_IDENTIFIER", "")
+arg = ' '.join(sys.argv[1:])
+
+r = openai.ChatCompletion.create(
+  model="gpt-3.5-turbo",
+  messages=[
+        {"role": "system", "content": "You are ChatGPT, a large language model trained by OpenAI. Answer as concisely as possible."},
+        {"role": "user", "content": f"Answer with only the actual command without any intro or explanation. What is the {distro} linux command line command to {arg}. Give me three possible answers."}
+    ]
+)
+
+text = r["choices"][0]["message"]["content"]
+if text.startswith('```') and text.endswith('```'):
+  text = text[3:-3]
+if text.startswith('`') and text.endswith('`'):
+  text = text[1:-1]
+
+print(text)

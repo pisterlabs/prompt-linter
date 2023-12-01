@@ -1,0 +1,80 @@
+#!/home/daz/.pynest/openai/bin/python
+
+import sys
+import openai
+import pyperclip as pc
+import argparse
+import os
+import re
+
+openai.api_key = "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"
+
+
+def request_openai(prompt) -> str:
+    return openai.ChatCompletion.create(
+        model="gpt-3.5-turbo", messages=[{"role": "user", "content": prompt}]
+    ).choices[0].message.content
+
+
+def write_to_file(chat_completion, out_file):
+    # check if file exists
+    
+
+    with open(out_file, "w") as f:
+        f.write(chat_completion)
+
+
+BASE_PATH = "/home/daz/f/"
+def main():
+    # create a chat completion
+    # print the chat completion
+
+    # BEGIN: xz15d9bcejpp
+
+    parser = argparse.ArgumentParser(description="Translate the clipboard to portuguese")
+
+    parser.add_argument( '-o' , '--output', required=True, help="output file path")
+    parser.add_argument( '-r', '--raw' , required = False, help="raw output file path ?")
+
+    args = parser.parse_args()
+
+    clipboard = pc.paste().replace('\( ', '$').replace(' \)', '$').replace('\[ ', '$$').replace(' \]', '$$')
+
+    prompt = """
+
+    given the following output, I want you to translate it to brazillian portuguese while keeping the markdown structure of the text.
+    your output should be surrounded by three backticks (```).:
+    
+
+    output:
+    ```
+    {}
+    ```
+    """.format(
+        clipboard
+    )
+
+    chat_completion = request_openai(prompt);
+
+    if len(sys.argv) < 2:
+        print("Please provide a file path as an argument")
+        sys.exit()
+
+    file_path = os.path.join(BASE_PATH, args.output + ".md")
+
+    if (args.raw):
+        file_path = os.path.join(args.output + ".md")
+
+    match = re.search(r"```(.*?)```", chat_completion, re.DOTALL)
+    if match:
+        write_to_file(match.group(1), file_path)
+
+    import subprocess
+
+    subprocess.call(["pandoc", file_path, "-o", f"{file_path}".replace(".md", ".pdf")])
+
+    return 0
+
+
+# END: xz15d9bcejpp
+main()
