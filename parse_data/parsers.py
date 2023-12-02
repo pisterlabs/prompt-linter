@@ -1,6 +1,5 @@
 import os
 from tree_sitter import Language, Parser, Tree, Node
-from tqdm import tqdm
 
 if not os.path.exists("build/my-languages.so"):
     Language.build_library("build/my-languages.so", ["vendor/tree-sitter-python"])
@@ -89,6 +88,25 @@ def extract_args(tree: Tree, argument_list: Node) -> str:
     return argument_list.text.decode("utf-8")
 
 
+def parse_message_list(tree: Tree, messages: list[dict[str, str]]):
+    identifier_in_dictionary = PY_LANGUAGE.query(
+        """(list (dictionary (pair
+        key: (_)
+        value: (identifier) @myident
+    )))"""
+    )
+    identifier_in_list = PY_LANGUAGE.query("(list (identifier) @myident)")
+
+    data = []
+    for usage in identifier_in_dictionary.captures(messages):
+        data.append(find_def(tree, usage[0].text.decode("utf-8")))
+
+    for usage in identifier_in_list.captures(messages):
+        data.append(find_def(tree, usage[0].text.decode("utf-8")))
+
+    return ";\n".join(data)
+
+
 def parse_keyword_argument(tree: Tree, arg: Node):
     query = PY_LANGUAGE.query(
         """(keyword_argument
@@ -102,11 +120,17 @@ def parse_keyword_argument(tree: Tree, arg: Node):
             if usage[0].type == "string":
                 return usage[0].text.decode("utf-8")
 
+            if usage[0].type == "list":
+                return parse_message_list(tree, usage[0])
+
+            # if usage[0].type == "list":
+            #    return parse_message_list(tree, usage[0])
+
             # try to find definition if ident
-            return find_def(tree, usage[0].text.decode("utf-8"))
+            # return find_def(tree, usage[0].text.decode("utf-8"))
 
     # Default, return text
-    return find_def(tree, arg.text.decode("utf-8"))
+    return arg.text.decode("utf-8")
 
 
 def used_in_langchain_llm_call(tree: Tree):
@@ -199,11 +223,11 @@ class PromptDetector:
 
     def detect_prompts(self, filenames: list[str]):
         results = {}
-        for filename in tqdm(filenames):
+
+        for filename in filenames:
             results |= self._detect_prompts(filename)
 
-        results = self.print_results(results)
-        return {"prompts": results}
+        return self.print_results(results)
 
     def print_results(self, results):
         per_heuristic = {}
@@ -219,6 +243,7 @@ class PromptDetector:
                 if len(found) > 0:
                     count += 1
 
+        """
         for heuristic in self.heuristics:
             print(heuristic.__name__)
             print(heuristic.__doc__)
@@ -226,6 +251,7 @@ class PromptDetector:
             print()
 
         print(f"Parser Returns result for {count} files out of 1444 files")
+        """
         return list(prompts)
 
     def _detect_prompts(self, filename: str):
@@ -234,10 +260,6 @@ class PromptDetector:
 
         results = {}
         for heuristic in self.heuristics:
-            try:
-                results[heuristic.__name__] = heuristic(tree)
-            except Exception as e:
-                print(f"Error in {heuristic.__name__} for {filename}")
-                print(e)
+            results[heuristic.__name__] = heuristic(tree)
 
         return {filename: results}
