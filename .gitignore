@@ -1,6 +1,5 @@
 .DS_Store
 *.so
-parse_data/resources
 prompt_language/.ipynb_checkpoints/*
 prompt_language/.ipynb_checkpoints
 
