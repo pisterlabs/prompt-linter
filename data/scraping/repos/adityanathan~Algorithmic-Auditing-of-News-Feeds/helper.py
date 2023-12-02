@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 import pickle
 import re
-
 import spacy
 
 import gensim
@@ -10,6 +9,10 @@ import gensim.corpora as corpora
 from gensim.utils import simple_preprocess
 from gensim.models import CoherenceModel, HdpModel
 from nltk.corpus import stopwords
+
+'''
+A collection of helper functions
+'''
 
 # Initialize spacy 'en' model, keeping only tagger component (for efficiency)
 nlp = spacy.load('en', disable=['parser', 'ner'])
@@ -19,6 +22,8 @@ def sent_to_words(sentences):
     for sentence in sentences:
         # deacc=True removes punctuations
         yield(gensim.utils.simple_preprocess(str(sentence), deacc=True))
+
+# Define functions for stopwords, bigrams, trigrams and lemmatization
 
 
 def remove_stopwords(texts, stop_words):
