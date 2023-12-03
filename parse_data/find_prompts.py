@@ -6,22 +6,26 @@ from glob import glob
 from multiprocessing import Pool
 from parse_data.parsers import (
     PromptDetector,
+    use_langchain_tool,
+    used_chat_function,
     used_in_langchain_llm_call,
     used_in_openai_call,
     new_line_in_string,
     prompt_or_template_in_name,
+    all_strings,
 )
 
-RUN_ID = f"{4:03d}"
+RUN_ID = f"{5:03d}"
 os.makedirs(RUN_ID, exist_ok=True)
 
 
 def process_chunk(filenames):
     detector = PromptDetector()
-    detector.add_heuristic(used_in_openai_call)
-    detector.add_heuristic(used_in_langchain_llm_call)
-    detector.add_heuristic(new_line_in_string)
+    # detector.add_heuristic(use_langchain_tool)
+    # detector.add_heuristic(used_in_langchain_llm_call)
+    # detector.add_heuristic(new_line_in_string)
     detector.add_heuristic(prompt_or_template_in_name)
+    # detector.add_heuristic(all_strings)
 
     prompts = detector.detect_prompts(filenames)
     _uuid = str(uuid.uuid4())
@@ -44,6 +48,10 @@ def run_all(filenames: list[str], n=32):
         p.map(process_chunk, filenames_batched)
 
 
+def single_run(filenames: list[str], n=32):
+    process_chunk(filenames)
+
+
 if __name__ == "__main__":
     root_dir = "data/scraping/repos"
 
@@ -54,12 +62,13 @@ if __name__ == "__main__":
             file_path = os.path.join(repo_path, file)
             paths.append(file_path)
 
-    run_all(paths)
+    single_run(paths)
 
     data = []
     for filename in glob(f"{RUN_ID}/prompts-*.json"):
         with open(filename) as f:
             data.extend(json.load(f))
 
+    print(f"Found {len(data)} prompts in {len(paths)} files.")
     with open(f"final_prompts_{RUN_ID}.json", "w") as file:
         json.dump(data, file)
