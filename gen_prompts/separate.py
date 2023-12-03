@@ -6,6 +6,7 @@ from tree_sitter import Language, Parser, Tree
 PY_LANGUAGE = Language("./build/my-languages.so", "python")
 parser = Parser()
 parser.set_language(PY_LANGUAGE)
+SEP = "\n----------------------------------------------------------------------------------------\n"
 
 
 def parse_tree(tree: Tree):
@@ -33,12 +34,12 @@ def parse_tree(tree: Tree):
 
 def parse_prompts(filename):
     with open(filename) as f:
-        prompts = f.read().split("\n----------\n")
+        prompts = f.read().split(SEP)
 
     prompts = list(map(lambda x: x.strip(), prompts))
     prompts = list(filter(lambda x: x != "", prompts))
 
-    print("Found", len(prompts), "prompts")
+    print("Found", len(prompts), "prompts in", filename)
 
     data = {}
     for prompt in prompts:

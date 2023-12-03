@@ -7,3 +7,5 @@ parse_data/build
 parse_data/tree-sitter-python
 venv
 __pycache__
+black-*
+old_data

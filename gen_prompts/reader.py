@@ -9,6 +9,10 @@ parser = Parser()
 parser.set_language(PY_LANGUAGE)
 
 
+per_file_usage = {}
+SEP = "\n----------------------------------------------------------------------------------------\n"
+
+
 def parse_kwarg(tree: Node):
     splits = tree.text.decode("utf-8").split("=", maxsplit=1)
     if len(splits) == 2:
@@ -20,6 +24,7 @@ def parse_kwarg(tree: Node):
 def parse_args(tree: Tree):
     text = tree.root_node.text.decode("utf-8")
     fn_name = text.split("(", maxsplit=1)[0].strip()
+    fn_name = fn_name.split("\n")[-1].strip()
 
     query = PY_LANGUAGE.query(
         f"""(call 
@@ -47,26 +52,23 @@ def parse_args(tree: Tree):
     return args
 
 
-def get_parsed_files(filename):
-    with open(filename) as f:
-        calls = json.load(f)
-    return calls
-
-
-def save_for_black(name, calls, wrap):
+def save_for_black(name, calls, wrap, wrap_extra):
     folder = f"black-{name}"
     os.makedirs(folder, exist_ok=True)
-    for filename, el in calls:
-        filename = filename.replace("/", "_")
+    for ogfilename, el in calls:
+        filename = ogfilename.replace("/", "_")
         _calls = el[name]
         for idx, call in enumerate(_calls):
             with open(f"{folder}/{filename}-{idx}.py", "w") as f:
-                if wrap:
+                f.write(f"# {ogfilename}\n")
+                if wrap_extra:
                     f.write("fn(" + call + ")")
+                elif wrap:
+                    f.write("fn" + call)
                 else:
                     f.write(call)
 
-    os.system(folder)
+    os.system(f"black {folder} -q")
 
 
 def get_black_trees(name):
@@ -74,50 +76,58 @@ def get_black_trees(name):
     folder = f"black-{name}"
     files = glob.glob(f"{folder}/*.py")
     for file in files:
+        with open(file) as f:
+            filename = f.readline()[2:].strip()
+
         with open(file, "rb") as f:
             tree = parser.parse(f.read())
-            calls.append((file, tree))
+            calls.append((filename, parse_args(tree)))
     return calls
 
 
-def run(filename, wrap):
+def run(filename, wrap, wrap_extra=False):
     name = os.path.splitext(os.path.basename(filename))[0]
 
-    save_for_black(name, get_parsed_files(filename), wrap)
+    with open(filename) as f:
+        hits = json.load(f)
+
+    save_for_black(name, hits, wrap, wrap_extra)
     calls = get_black_trees(name)
 
     call_args: dict[str, set] = {}
-    for _, tree in calls:
-        for key, value in parse_args(tree).items():
+    for filename, args in calls:
+        if filename not in per_file_usage:
+            per_file_usage[filename] = {}
+
+        for key, value in args.items():
             if key not in call_args:
                 call_args[key] = set()
+
+            if key not in per_file_usage[filename]:
+                per_file_usage[filename][key] = []
+
             call_args[key].add(value)
+            per_file_usage[filename][key].append(value)
 
     return call_args
 
 
+def save_with_sep(name, call_args, keys):
+    with open(f"{name}.txt", "w") as f:
+        for key in keys:
+            f.write(SEP.join(call_args.get(key, [])))
+            f.write(SEP)
+
+
 if __name__ == "__main__":
     call_args = run("used_in_openai_call.json", wrap=True)
-
-    ### Below is for openai + anthropic, i.e. completions.create
-    with open("completions.txt", "w") as f:
-        f.write("\n----------\n".join(call_args["prompt"]))
-
-    with open("chat-completions.txt", "w") as f:
-        f.write("\n----------\n".join(call_args["messages"]))
+    save_with_sep("completions", call_args, ["prompt"])
+    save_with_sep("chat-completions", call_args, ["messages"])
 
     call_args = run("used_chat_function.json", wrap=True)
+    save_with_sep("cohere-prompts", call_args, ["text", "pos-01", "message"])
 
-    ### Below is for cohere, i.e. .chat .summarize
-    cohere_texts = ["text", "pos-01", "message"]
-    with open("cohere-prompts.txt", "w") as f:
-        for key in cohere_texts:
-            f.write("\n----------\n".join(call_args[key]))
-            f.write("\n----------\n")
-
-    call_args = run("used_langchain_llm_call.json", wrap=False)
-
-    ### Below is for langchain, i.e. PromptTemplate Message classes
+    call_args = run("used_in_langchain_llm_call.json", wrap=False)
     langchain_texts = [
         "message",
         "prompt",
@@ -129,18 +139,16 @@ if __name__ == "__main__":
         "prefix",
         "suffix",
     ]
-    with open("langchain-prompts.txt", "w") as f:
-        for key in langchain_texts:
-            f.write("\n----------\n".join(list(call_args[key])))
-            f.write("\n----------\n")
+    save_with_sep("langchain-prompts", call_args, langchain_texts)
 
     call_args = run("used_langchain_tool.json", wrap=True)
+    save_with_sep("langchain-tools", call_args, ["pos-01"])
 
-    with open("langchain-tools.txt", "w") as f:
-        f.write("\n----------\n".join(list(call_args["pos-01"])))
+    with open("reader_metadata.json", "w") as f:
+        json.dump(per_file_usage, f, indent=2, ensure_ascii=False)
 
-    call_args = run("prompt_or_template_in_name.json", wrap=True)
+    call_args = run("used_prompt_or_template_name.json", wrap=True, wrap_extra=True)
+    save_with_sep("prompt_or_template_strings", call_args, list(call_args.keys()))
 
-    with open("prompt_or_template_strings.txt", "w") as f:
-        for key, value in call_args.items():
-            f.write("\n----------\n".join(list(value)))
+    with open("reader_metadata_plus.json", "w") as f:
+        json.dump(per_file_usage, f, indent=2, ensure_ascii=False)

@@ -48,7 +48,7 @@ def new_line_in_string(tree: Tree):
     return result
 
 
-def prompt_or_template_in_name(tree: Tree):
+def used_prompt_or_template_name(tree: Tree):
     """Look for prompt or template in variable name"""
     result = []
 
@@ -410,10 +410,10 @@ class PromptDetector:
 
         for heuristic in self.heuristics:
             name = heuristic.__name__
-            results = filter(lambda x, name=name: x[1][name], results.items())
+            save_results = filter(lambda x, name=name: x[1][name], results.items())
 
             with open(f"{name}.json", "w") as f:
-                json.dump(list(results), f, indent=2)
+                json.dump(list(save_results), f, indent=2)
 
         return []
 
