@@ -129,7 +129,7 @@ def save_with_sep(name, call_args, keys):
 
 
 if __name__ == "__main__":
-    keys = ["prompt", "message"]
+    keys = ["prompt", "messages"]
     call_args = run("used_in_openai_call.json", keys)
     save_with_sep("chat-completions", call_args, keys)
 
