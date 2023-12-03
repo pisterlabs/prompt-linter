@@ -260,7 +260,7 @@ def parse_keyword_argument(tree: Tree, arg: Node):
     return result
 
 
-def use_langchain_tool(tree: Tree):
+def used_langchain_tool(tree: Tree):
     tool_query = PY_LANGUAGE.query(
         """(decorated_definition
         (decorator (identifier) @dec)
@@ -408,13 +408,14 @@ class PromptDetector:
         for filename in tqdm(filenames):
             results |= self._detect_prompts(filename)
 
-        name = "prompt_or_template_in_name"
-        results = filter(lambda x: x[1][name], results.items())
+        for heuristic in self.heuristics:
+            name = heuristic.__name__
+            results = filter(lambda x, name=name: x[1][name], results.items())
 
-        with open(f"{name}-strings.json", "w") as f:
-            json.dump(list(results), f, indent=2)
+            with open(f"{name}.json", "w") as f:
+                json.dump(list(results), f, indent=2)
+
         return []
-        # return self.print_results(results)
 
     def print_results(self, results):
         per_heuristic = {}

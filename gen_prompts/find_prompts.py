@@ -4,14 +4,14 @@ import os
 from itertools import islice
 from glob import glob
 from multiprocessing import Pool
-from parse_data.parsers import (
+from gen_prompts.parsers import (
     PromptDetector,
-    use_langchain_tool,
+    used_langchain_tool,
     used_chat_function,
     used_in_langchain_llm_call,
     used_in_openai_call,
-    new_line_in_string,
     prompt_or_template_in_name,
+    new_line_in_string,
     all_strings,
 )
 
@@ -21,16 +21,18 @@ os.makedirs(RUN_ID, exist_ok=True)
 
 def process_chunk(filenames):
     detector = PromptDetector()
-    # detector.add_heuristic(use_langchain_tool)
-    # detector.add_heuristic(used_in_langchain_llm_call)
-    # detector.add_heuristic(new_line_in_string)
+    detector.add_heuristic(used_langchain_tool)
+    detector.add_heuristic(used_in_langchain_llm_call)
+    detector.add_heuristic(used_in_openai_call)
+    detector.add_heuristic(used_chat_function)
     detector.add_heuristic(prompt_or_template_in_name)
+    # detector.add_heuristic(new_line_in_string)
     # detector.add_heuristic(all_strings)
 
-    prompts = detector.detect_prompts(filenames)
-    _uuid = str(uuid.uuid4())
-    with open(f"{RUN_ID}/prompts-{_uuid}.json", "w") as w:
-        json.dump(prompts, w)
+    detector.detect_prompts(filenames)
+    # _uuid = str(uuid.uuid4())
+    # with open(f"{RUN_ID}/prompts-{_uuid}.json", "w") as w:
+    #     json.dump(prompts, w)
 
 
 def batched(iterable, n):
