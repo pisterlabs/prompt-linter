@@ -1,18 +1,18 @@
 import json
 
-with open("separated-prompts.json") as f:
+with open("separated-completions.json") as f:
     data = json.load(f)
 
-with open("separated-messages.json") as f:
+with open("separated-chat-completions.json") as f:
     data.update(json.load(f))
 
-with open("separated-langchain.json") as f:
+with open("separated-langchain-tools.json") as f:
     data.update(json.load(f))
 
-with open("separated-tools.json") as f:
+with open("separated-langchain-prompts.json") as f:
     data.update(json.load(f))
 
-with open("separated-cohere.json") as f:
+with open("separated-cohere-prompts.json") as f:
     data.update(json.load(f))
 
 
@@ -27,7 +27,7 @@ print("Unique from llm calls", len(set(strings)))
 with open("strings.txt", "w") as f:
     f.write("\n----------\n".join(strings))
 
-with open("separated-name-based.json") as f:
+with open("separated-prompt_or_template_strings.json") as f:
     sketch_data = json.load(f)
 
 for key, value in sketch_data.items():
