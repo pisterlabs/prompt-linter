@@ -1,10 +1,7 @@
 import json
 
-with open("separated-completions.json") as f:
-    data = json.load(f)
-
 with open("separated-chat-completions.json") as f:
-    data.update(json.load(f))
+    data = json.load(f)
 
 with open("separated-langchain-tools.json") as f:
     data.update(json.load(f))

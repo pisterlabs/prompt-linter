@@ -10,6 +10,7 @@ parser.set_language(PY_LANGUAGE)
 
 
 per_file_usage = {}
+all_per_file_usage = {}
 SEP = "\n----------------------------------------------------------------------------------------\n"
 
 
@@ -85,7 +86,7 @@ def get_black_trees(name):
     return calls
 
 
-def run(filename, wrap, wrap_extra=False):
+def run(filename, keys=None, wrap=True, wrap_extra=False):
     name = os.path.splitext(os.path.basename(filename))[0]
 
     with open(filename) as f:
@@ -96,6 +97,9 @@ def run(filename, wrap, wrap_extra=False):
 
     call_args: dict[str, set] = {}
     for filename, args in calls:
+        if filename not in all_per_file_usage:
+            all_per_file_usage[filename] = {}
+
         if filename not in per_file_usage:
             per_file_usage[filename] = {}
 
@@ -103,11 +107,16 @@ def run(filename, wrap, wrap_extra=False):
             if key not in call_args:
                 call_args[key] = set()
 
-            if key not in per_file_usage[filename]:
+            if key not in per_file_usage[filename] and (keys is None or key in keys):
                 per_file_usage[filename][key] = []
 
+            if key not in all_per_file_usage[filename]:
+                all_per_file_usage[filename][key] = []
+
             call_args[key].add(value)
-            per_file_usage[filename][key].append(value)
+            if keys is None or key in keys:
+                per_file_usage[filename][key].append(value)
+            all_per_file_usage[filename][key].append(value)
 
     return call_args
 
@@ -120,15 +129,15 @@ def save_with_sep(name, call_args, keys):
 
 
 if __name__ == "__main__":
-    call_args = run("used_in_openai_call.json", wrap=True)
-    save_with_sep("completions", call_args, ["prompt"])
-    save_with_sep("chat-completions", call_args, ["messages"])
+    keys = ["prompt", "message"]
+    call_args = run("used_in_openai_call.json", keys)
+    save_with_sep("chat-completions", call_args, keys)
 
-    call_args = run("used_chat_function.json", wrap=True)
-    save_with_sep("cohere-prompts", call_args, ["text", "pos-01", "message"])
+    keys = ["text", "pos-01", "message"]
+    call_args = run("used_chat_function.json", keys)
+    save_with_sep("cohere-prompts", call_args, keys)
 
-    call_args = run("used_in_langchain_llm_call.json", wrap=False)
-    langchain_texts = [
+    keys = [
         "message",
         "prompt",
         "template",
@@ -139,16 +148,25 @@ if __name__ == "__main__":
         "prefix",
         "suffix",
     ]
-    save_with_sep("langchain-prompts", call_args, langchain_texts)
+    call_args = run("used_in_langchain_llm_call.json", keys, wrap=False)
+    save_with_sep("langchain-prompts", call_args, keys)
 
-    call_args = run("used_langchain_tool.json", wrap=True)
-    save_with_sep("langchain-tools", call_args, ["pos-01"])
+    keys = ["pos-01"]
+    call_args = run("used_langchain_tool.json", keys, wrap_extra=True)
+    save_with_sep("langchain-tools", call_args, keys)
 
-    with open("reader_metadata.json", "w") as f:
+    with open("reader_prompt_metadata.json", "w") as f:
         json.dump(per_file_usage, f, indent=2, ensure_ascii=False)
 
-    call_args = run("used_prompt_or_template_name.json", wrap=True, wrap_extra=True)
+    with open("reader_all_metadata.json", "w") as f:
+        json.dump(all_per_file_usage, f, indent=2, ensure_ascii=False)
+
+    # All prompts are messier
+    call_args = run("used_prompt_or_template_name.json", wrap_extra=True)
     save_with_sep("prompt_or_template_strings", call_args, list(call_args.keys()))
 
-    with open("reader_metadata_plus.json", "w") as f:
+    with open("reader_prompt_metadata_plus.json", "w") as f:
         json.dump(per_file_usage, f, indent=2, ensure_ascii=False)
+
+    with open("reader_all_metadata_plus.json", "w") as f:
+        json.dump(all_per_file_usage, f, indent=2, ensure_ascii=False)
