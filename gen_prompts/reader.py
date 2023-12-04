@@ -130,12 +130,16 @@ def save_with_sep(name, call_args, keys):
 
 if __name__ == "__main__":
     keys = ["prompt", "messages"]
+    # call_args = run("used_in_openai_call_og.json", keys)
+    # save_with_sep("chat-completions", call_args, keys)
     call_args = run("used_in_openai_call.json", keys)
-    save_with_sep("chat-completions", call_args, keys)
+    save_with_sep("chat-completions-beta", call_args, keys)
 
     keys = ["text", "pos-01", "message"]
+    # call_args = run("used_chat_function_og.json", keys)
+    # save_with_sep("cohere-prompts", call_args, keys)
     call_args = run("used_chat_function.json", keys)
-    save_with_sep("cohere-prompts", call_args, keys)
+    save_with_sep("cohere-prompts-beta", call_args, keys)
 
     keys = [
         "message",
@@ -148,25 +152,31 @@ if __name__ == "__main__":
         "prefix",
         "suffix",
     ]
+    # call_args = run("used_in_langchain_llm_call_og.json", keys, wrap=False)
+    # save_with_sep("langchain-prompts", call_args, keys)
     call_args = run("used_in_langchain_llm_call.json", keys, wrap=False)
-    save_with_sep("langchain-prompts", call_args, keys)
+    save_with_sep("langchain-prompts-beta", call_args, keys)
 
-    keys = ["pos-01"]
-    call_args = run("used_langchain_tool.json", keys, wrap_extra=True)
-    save_with_sep("langchain-tools", call_args, keys)
+    # keys = ["pos-01"]
+    # call_args = run("used_langchain_tool_class.json", keys, wrap_extra=True)
+    # save_with_sep("langchain-tools-class", call_args, keys)
 
-    with open("reader_prompt_metadata.json", "w") as f:
-        json.dump(per_file_usage, f, indent=2, ensure_ascii=False)
+    # keys = ["pos-01"]
+    # call_args = run("used_langchain_tool.json", keys, wrap_extra=True)
+    # save_with_sep("langchain-tools", call_args, keys)
 
-    with open("reader_all_metadata.json", "w") as f:
-        json.dump(all_per_file_usage, f, indent=2, ensure_ascii=False)
+    # with open("reader_prompt_metadata.json", "w") as f:
+    #     json.dump(per_file_usage, f, indent=2, ensure_ascii=False)
 
-    # All prompts are messier
-    call_args = run("used_prompt_or_template_name.json", wrap_extra=True)
-    save_with_sep("prompt_or_template_strings", call_args, list(call_args.keys()))
+    # with open("reader_all_metadata.json", "w") as f:
+    #     json.dump(all_per_file_usage, f, indent=2, ensure_ascii=False)
 
-    with open("reader_prompt_metadata_plus.json", "w") as f:
-        json.dump(per_file_usage, f, indent=2, ensure_ascii=False)
+    # # All prompts are messier
+    # call_args = run("used_prompt_or_template_name.json", wrap_extra=True)
+    # save_with_sep("prompt_or_template_strings", call_args, list(call_args.keys()))
 
-    with open("reader_all_metadata_plus.json", "w") as f:
-        json.dump(all_per_file_usage, f, indent=2, ensure_ascii=False)
+    # with open("reader_prompt_metadata_plus.json", "w") as f:
+    #     json.dump(per_file_usage, f, indent=2, ensure_ascii=False)
+
+    # with open("reader_all_metadata_plus.json", "w") as f:
+    #     json.dump(all_per_file_usage, f, indent=2, ensure_ascii=False)

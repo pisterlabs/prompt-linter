@@ -12,6 +12,71 @@ PY_LANGUAGE = Language("./build/my-languages.so", "python")
 # prompt_dict should be a dictionary with a prompt key and a metadata key
 
 
+def find_betasub(parser, tree: Tree):
+    int_query = PY_LANGUAGE.query(
+        """(assignment
+            left: (identifier) @var.name
+            right: (integer) @var.value
+        ) @assign"""
+    )
+    string_query = PY_LANGUAGE.query(
+        """(assignment
+            left: (identifier) @var.name
+            right: (string) @var.value
+        ) @assign"""
+    )
+    rems: list[Node] = []
+    variables = {}
+    varname = None
+    for capture in int_query.captures(tree.root_node) + string_query.captures(
+        tree.root_node
+    ):
+        if capture[1] == "var.name":
+            varname = capture[0].text.decode("utf-8")
+        elif varname and capture[1] == "var.value":
+            variables[varname] = capture[0].text
+            varname = None
+        elif capture[1] == "assign":
+            rems.append(capture[0])
+
+    tree_bytes = tree.root_node.text
+    for rem in rems[::-1]:
+        tree_bytes = tree_bytes.replace(rem.text, b"")
+
+    for varname, value in variables.items():
+        tree = parser.parse(tree_bytes)
+        tree_bytes = tree.root_node.text
+
+        query = PY_LANGUAGE.query(f'((identifier) @ident (#eq? @ident "{varname}"))')
+
+        for capture in query.captures(tree.root_node)[::-1]:
+            if capture[0].parent.type not in [
+                "assignment",
+                "keyword_argument",
+                "augmented_assignment",
+                "typed_default_parameter",
+                "pattern_list",
+                "expression_list",
+                "for_statement",
+                "parameters",
+                "typed_parameter",
+                "global_statement",
+                "nonlocal_statement",
+                "call",
+                "dotted_name",
+                "for_in_clause",
+                "list_comprehension",
+                "while_statement",
+            ]:
+                tree_bytes = (
+                    tree_bytes[: capture[0].start_byte]
+                    + value
+                    + tree_bytes[capture[0].end_byte :]
+                )
+
+    return parser.parse(tree_bytes)
+
+
 def all_strings(tree: Tree):
     """All Strings heuristic"""
     result = []
@@ -260,6 +325,32 @@ def parse_keyword_argument(tree: Tree, arg: Node):
     return result
 
 
+def used_langchain_tool_class(tree: Tree):
+    tool_query = PY_LANGUAGE.query(
+        """(class_definition
+            name: (identifier)
+            superclasses: (argument_list
+                (identifier) @superclass
+            )
+            (#match? @superclass "Tool")
+            body: (block
+                (expression_statement
+                    (assignment
+                        left: (identifier) @ident
+                        right: (string) @string
+                    )
+                    (#eq? @ident "description")
+                )
+            )
+        )"""
+    )
+    result = []
+    for capture in tool_query.captures(tree.root_node):
+        if capture[1] == "string":
+            result.append(capture[0].text.decode("utf-8"))
+    return result
+
+
 def used_langchain_tool(tree: Tree):
     tool_query = PY_LANGUAGE.query(
         """(decorated_definition
@@ -410,7 +501,9 @@ class PromptDetector:
 
         for heuristic in self.heuristics:
             name = heuristic.__name__
-            save_results = filter(lambda x, name=name: x[1][name], results.items())
+            save_results = list(
+                filter(lambda x, name=name: x[1][name], results.items())
+            )
 
             with open(f"{name}.json", "w") as f:
                 json.dump(list(save_results), f, indent=2)
@@ -447,6 +540,7 @@ class PromptDetector:
             tree = self.parser.parse(f.read())
 
         results = {}
+        tree = find_betasub(self.parser, tree)
         for heuristic in self.heuristics:
             results[heuristic.__name__] = heuristic(tree)
 

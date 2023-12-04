@@ -1,15 +1,29 @@
 import json
 
-with open("separated-chat-completions.json") as f:
+SEP = "\n----------------------------------------------------------------------------------------\n"
+
+# with open("separated-chat-completions.json") as f:
+#     data = json.load(f)
+
+# with open("separated-langchain-prompts.json") as f:
+#     data.update(json.load(f))
+
+# with open("separated-cohere-prompts.json") as f:
+#     data.update(json.load(f))
+
+with open("separated-chat-completions-beta.json") as f:
     data = json.load(f)
 
 with open("separated-langchain-tools.json") as f:
     data.update(json.load(f))
 
-with open("separated-langchain-prompts.json") as f:
+with open("separated-langchain-tools-class.json") as f:
     data.update(json.load(f))
 
-with open("separated-cohere-prompts.json") as f:
+with open("separated-langchain-prompts-beta.json") as f:
+    data.update(json.load(f))
+
+with open("separated-cohere-prompts-beta.json") as f:
     data.update(json.load(f))
 
 
@@ -22,7 +36,7 @@ print("From llm calls", len(strings))
 print("Unique from llm calls", len(set(strings)))
 
 with open("strings.txt", "w") as f:
-    f.write("\n----------\n".join(strings))
+    f.write(SEP.join(strings))
 
 with open("separated-prompt_or_template_strings.json") as f:
     sketch_data = json.load(f)
@@ -35,4 +49,4 @@ print("From llm calls + prompts", len(strings))
 print("Unique from llm calls + prompts", len(set(strings)))
 
 with open("strings_plus.txt", "w") as f:
-    f.write("\n----------\n".join(strings))
+    f.write(SEP.join(strings))

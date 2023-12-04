@@ -87,9 +87,16 @@ def parse_metadata_file(filename):
 
 if __name__ == "__main__":
     parse_prompts("chat-completions.txt")
-    parse_prompts("langchain-tools.txt")
+    parse_prompts("chat-completions-beta.txt")
+
     parse_prompts("langchain-prompts.txt")
+    parse_prompts("langchain-prompts-beta.txt")
     parse_prompts("cohere-prompts.txt")
-    parse_prompts("prompt_or_template_strings.txt")
+    parse_prompts("cohere-prompts-beta.txt")
+
+    # parse_prompts("langchain-tools.txt")
+    # parse_prompts("langchain-tools-class.txt")
+
+    # parse_prompts("prompt_or_template_strings.txt")
     # parse_metadata_file("reader_prompt_metadata.json")
     # parse_metadata_file("reader_prompt_metadata_plus.json")
