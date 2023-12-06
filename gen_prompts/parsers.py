@@ -13,6 +13,18 @@ PY_LANGUAGE = Language("./build/my-languages.so", "python")
 
 
 def find_betasub(parser, tree: Tree):
+    dot_int_query = PY_LANGUAGE.query(
+        """(assignment
+            left: (attribute) @var.name
+            right: (integer) @var.value
+        ) @assign"""
+    )
+    dot_string_query = PY_LANGUAGE.query(
+        """(assignment
+            left: (attribute) @var.name
+            right: (string) @var.value
+        ) @assign"""
+    )
     int_query = PY_LANGUAGE.query(
         """(assignment
             left: (identifier) @var.name
@@ -28,16 +40,15 @@ def find_betasub(parser, tree: Tree):
     rems: list[Node] = []
     variables = {}
     varname = None
-    for capture in int_query.captures(tree.root_node) + string_query.captures(
-        tree.root_node
-    ):
-        if capture[1] == "var.name":
-            varname = capture[0].text.decode("utf-8")
-        elif varname and capture[1] == "var.value":
-            variables[varname] = capture[0].text
-            varname = None
-        elif capture[1] == "assign":
-            rems.append(capture[0])
+    for query in [dot_int_query, dot_string_query, int_query, string_query]:
+        for capture in query.captures(tree.root_node):
+            if capture[1] == "var.name":
+                varname = capture[0].text.decode("utf-8")
+            elif varname and capture[1] == "var.value":
+                variables[varname] = capture[0].text
+                varname = None
+            elif capture[1] == "assign":
+                rems.append(capture[0])
 
     tree_bytes = tree.root_node.text
     for rem in rems[::-1]:
@@ -47,10 +58,41 @@ def find_betasub(parser, tree: Tree):
         tree = parser.parse(tree_bytes)
         tree_bytes = tree.root_node.text
 
-        query = PY_LANGUAGE.query(f'((identifier) @ident (#eq? @ident "{varname}"))')
+        if "." in varname:
+            try:
+                query = PY_LANGUAGE.query(
+                    f'((attribute) @ident (#eq? @ident "{varname}"))'
+                )
+            except:
+                print(varname)
+                continue
+        else:
+            query = PY_LANGUAGE.query(
+                f'((identifier) @ident (#eq? @ident "{varname}"))'
+            )
 
         for capture in query.captures(tree.root_node)[::-1]:
-            if capture[0].parent.type not in [
+            if (
+                capture[0].parent
+                and capture[0].parent.parent
+                and capture[0].parent.parent.type in ["interpolation"]
+            ):
+                tree_bytes = (
+                    tree_bytes[: capture[0].parent.parent.start_byte]
+                    + value
+                    + tree_bytes[capture[0].parent.parent.end_byte :]
+                )
+            elif capture[0].parent and capture[0].parent.type in [
+                "interpolation",
+                "attribute",
+            ]:
+                tree_bytes = (
+                    tree_bytes[: capture[0].parent.start_byte]
+                    + value
+                    + tree_bytes[capture[0].parent.end_byte :]
+                )
+
+            elif capture[0].parent.type not in [
                 "assignment",
                 "keyword_argument",
                 "augmented_assignment",
@@ -508,6 +550,14 @@ class PromptDetector:
             with open(f"{name}.json", "w") as f:
                 json.dump(list(save_results), f, indent=2)
 
+            name = heuristic.__name__ + "_sub"
+            save_results = list(
+                filter(lambda x, name=name: x[1][name], results.items())
+            )
+
+            with open(f"{name}.json", "w") as f:
+                json.dump(list(save_results), f, indent=2)
+
         return []
 
     def print_results(self, results):
@@ -540,8 +590,10 @@ class PromptDetector:
             tree = self.parser.parse(f.read())
 
         results = {}
-        tree = find_betasub(self.parser, tree)
         for heuristic in self.heuristics:
             results[heuristic.__name__] = heuristic(tree)
+        tree = find_betasub(self.parser, tree)
+        for heuristic in self.heuristics:
+            results[heuristic.__name__ + "_sub"] = heuristic(tree)
 
         return {filename: results}

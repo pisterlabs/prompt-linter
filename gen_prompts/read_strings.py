@@ -14,18 +14,17 @@ SEP = "\n-----------------------------------------------------------------------
 with open("separated-chat-completions-beta.json") as f:
     data = json.load(f)
 
-with open("separated-langchain-tools.json") as f:
-    data.update(json.load(f))
-
-with open("separated-langchain-tools-class.json") as f:
-    data.update(json.load(f))
-
 with open("separated-langchain-prompts-beta.json") as f:
     data.update(json.load(f))
 
 with open("separated-cohere-prompts-beta.json") as f:
     data.update(json.load(f))
 
+with open("separated-langchain-tools.json") as f:
+    data.update(json.load(f))
+
+with open("separated-langchain-tools-class.json") as f:
+    data.update(json.load(f))
 
 strings = []
 for key, value in data.items():
