@@ -1,3 +1,4 @@
+import re
 import json
 
 SEP = "\n----------------------------------------------------------------------------------------\n"
@@ -22,6 +23,18 @@ for repo, value in data.items():
     for string in value["strings"]:
         strings.append(string)
 
+strings = list(
+    map(
+        lambda x: x.strip("f")
+        .strip("\"'")
+        .replace("\\n", "\n")
+        .replace("\\t", "\t")
+        .replace("\\\r", "\r")
+        .replace("\\\n", "\n")
+        .replace('\\"', '"'),
+        strings,
+    )
+)
 print("From llm calls", len(strings))
 print("Unique from llm calls", len(set(strings)))
 
