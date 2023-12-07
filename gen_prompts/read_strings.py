@@ -39,7 +39,7 @@ print("From llm calls", len(strings))
 print("Unique from llm calls", len(set(strings)))
 
 with open("strings.json", "w") as f:
-    json.dump(strings, f, indent=2, ensure_ascii=False)
+    json.dump(list(set(strings)), f, indent=2, ensure_ascii=False)
 
 with open("separated-grouped-used_prompt_or_template_name.json") as f:
     sketch_data = json.load(f)
@@ -48,8 +48,20 @@ for key, value in sketch_data.items():
     for string in value["strings"]:
         strings.append(string)
 
+strings = list(
+    map(
+        lambda x: x.strip("f")
+        .strip("\"'")
+        .replace("\\n", "\n")
+        .replace("\\t", "\t")
+        .replace("\\\r", "\r")
+        .replace("\\\n", "\n")
+        .replace('\\"', '"'),
+        strings,
+    )
+)
 print("From llm calls + prompts", len(strings))
 print("Unique from llm calls + prompts", len(set(strings)))
 
 with open("strings_plus.txt", "w") as f:
-    json.dump(strings, f, indent=2, ensure_ascii=False)
+    json.dump(list(set(strings)), f, indent=2, ensure_ascii=False)
