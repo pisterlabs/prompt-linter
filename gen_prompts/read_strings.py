@@ -25,8 +25,8 @@ for repo, value in data.items():
 print("From llm calls", len(strings))
 print("Unique from llm calls", len(set(strings)))
 
-with open("strings.txt", "w") as f:
-    f.write(SEP.join(strings))
+with open("strings.json", "w") as f:
+    json.dump(strings, f, indent=2, ensure_ascii=False)
 
 with open("separated-grouped-used_prompt_or_template_name.json") as f:
     sketch_data = json.load(f)
@@ -39,4 +39,4 @@ print("From llm calls + prompts", len(strings))
 print("Unique from llm calls + prompts", len(set(strings)))
 
 with open("strings_plus.txt", "w") as f:
-    f.write(SEP.join(strings))
+    json.dump(strings, f, indent=2, ensure_ascii=False)
