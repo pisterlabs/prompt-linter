@@ -63,5 +63,5 @@ strings = list(
 print("From llm calls + prompts", len(strings))
 print("Unique from llm calls + prompts", len(set(strings)))
 
-with open("strings_plus.txt", "w") as f:
+with open("strings_plus.json", "w") as f:
     json.dump(list(set(strings)), f, indent=2, ensure_ascii=False)
