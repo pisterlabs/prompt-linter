@@ -1,10 +1,7 @@
-SEP = "\n----------------------------------------------------------------------------------------\n"
+import json
 
 
 def process_strings(name, strings):
-    strings = map(lambda x: x.strip("f").strip("\"'"), strings.split(SEP))
-    strings = set(list(strings))
-
     all_trailing_whitespace = 0
     trailing_whitespace = 0
     leading_whitespace = 0
@@ -40,12 +37,12 @@ print(
 print("\t\\toprule")
 print("\tSet & Total & Trailing (\\%) & Leading (\\%) & All (\\%) \\\\")
 print("\t\\midrule")
-with open("strings.txt") as f:
-    strings = f.read()
+with open("strings.json") as f:
+    strings = json.load(f)
     process_strings("a, b, c, d", strings)
 
-with open("strings_plus.txt") as f:
-    strings = f.read()
+with open("strings_plus.json") as f:
+    strings = json.load(f)
     process_strings("e", strings)
 
 print(

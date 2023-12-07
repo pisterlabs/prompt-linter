@@ -1,32 +1,29 @@
+import json
+
 # import langdetect
 from ftlangdetect import detect
 import re
 import matplotlib.pyplot as plt
 
-SEP = "\n----------------------------------------------------------------------------------------\n"
+# with open("strings.json") as f:
+#     strings = json.load(f)
 
-# with open("strings.txt") as f:
-#     strings = f.read()
+with open("strings_plus.json") as f:
+    strings = json.load(f)
 
-with open("strings_plus.txt") as f:
-    strings = f.read()
-
-
-strings = map(lambda x: x.strip("f").strip("\"'").strip(), strings.split(SEP))
-strings = set(list(strings))
 print(len(strings))
 
 freq = {}
 en = 0
-ot = 0
+ens = []
 for prompt in strings:
-    prompt = re.sub("\{[^\}]*\}", "", prompt)
+    prompt_l = re.sub("\{[^\}]*\}", "", prompt)
 
     if len(prompt) < 6:
         continue
 
     try:
-        lang = detect(prompt.split("\n")[0])
+        lang = detect(prompt_l.split("\n")[0])
         lang = lang["lang"]
     except Exception as e:
         lang = "error"
@@ -36,18 +33,17 @@ for prompt in strings:
 
     if lang == "en":
         en += 1
-    else:
-        ot += 1
+        ens.append(prompt)
     freq[lang] += 1
 
 freq = {k: v for k, v in sorted(freq.items(), key=lambda item: item[1], reverse=True)}
 print(freq)
-print(en)
-print(ot)
-print(en / ot)
 
 langs = freq.keys()
 counts = freq.values()
+
+with open("strings_en.json", "w") as f:
+    json.dump(ens, f, indent=2, ensure_ascii=False)
 
 plt.xlabel("language")
 plt.ylabel("frequency")

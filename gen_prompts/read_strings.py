@@ -1,7 +1,5 @@
-import re
 import json
 
-SEP = "\n----------------------------------------------------------------------------------------\n"
 
 with open("separated-grouped-used_in_openai_call_sub.json") as f:
     data = json.load(f)
@@ -83,7 +81,7 @@ unique_strings_all = len(set(strings_all))
 unique_strings_g_10_all = len(set(filter(lambda x: len(x) >= 10, strings_all)))
 
 with open("strings_plus.json", "w") as f:
-    json.dump(list(set(strings)), f, indent=2, ensure_ascii=False)
+    json.dump(list(set(strings_all)), f, indent=2, ensure_ascii=False)
 
 # print latex table
 print(
