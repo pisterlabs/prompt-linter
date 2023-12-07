@@ -2,32 +2,23 @@ import json
 
 SEP = "\n----------------------------------------------------------------------------------------\n"
 
-# with open("separated-chat-completions.json") as f:
-#     data = json.load(f)
-
-# with open("separated-langchain-prompts.json") as f:
-#     data.update(json.load(f))
-
-# with open("separated-cohere-prompts.json") as f:
-#     data.update(json.load(f))
-
-with open("separated-chat-completions-beta.json") as f:
+with open("separated-grouped-used_in_openai_call_sub.json") as f:
     data = json.load(f)
 
-with open("separated-langchain-prompts-beta.json") as f:
+with open("separated-grouped-used_in_langchain_llm_call_sub.json") as f:
     data.update(json.load(f))
 
-with open("separated-cohere-prompts-beta.json") as f:
+with open("separated-grouped-used_chat_function_sub.json") as f:
     data.update(json.load(f))
 
-with open("separated-langchain-tools.json") as f:
+with open("separated-grouped-used_langchain_tool.json") as f:
     data.update(json.load(f))
 
-with open("separated-langchain-tools-class.json") as f:
+with open("separated-grouped-used_langchain_tool_class.json") as f:
     data.update(json.load(f))
 
 strings = []
-for key, value in data.items():
+for repo, value in data.items():
     for string in value["strings"]:
         strings.append(string)
 
@@ -37,7 +28,7 @@ print("Unique from llm calls", len(set(strings)))
 with open("strings.txt", "w") as f:
     f.write(SEP.join(strings))
 
-with open("separated-prompt_or_template_strings.json") as f:
+with open("separated-grouped-used_prompt_or_template_name.json") as f:
     sketch_data = json.load(f)
 
 for key, value in sketch_data.items():
