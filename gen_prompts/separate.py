@@ -35,23 +35,34 @@ def parse_tree(tree: Tree):
 
 def parse_prompts(filename):
     with open(filename) as f:
-        prompts = f.read().split(SEP)
+        all_prompts = json.load(f)
 
-    prompts = list(map(lambda x: x.strip(), prompts))
-    prompts = list(filter(lambda x: x != "", prompts))
-
-    print("Found", len(prompts), "prompts in", filename)
-
+    prompt_count = 0
+    strings_found = 0
     data = {}
-    for prompt in prompts:
-        tree = parser.parse(bytes(prompt, "utf-8"))
-        strings, identifiers, interpolations = parse_tree(tree)
-        data[prompt] = {
-            "strings": strings,
-            "identifiers": identifiers,
-            "interpolations": interpolations,
-        }
+    unique_strings = set()
+    for repo, prompts in all_prompts.items():
+        prompts = list(map(lambda x: x.strip(), prompts))
+        prompts = list(filter(lambda x: x != "", prompts))
+        prompt_count += len(prompts)
+        if repo not in data:
+            data[repo] = {"strings": [], "identifiers": [], "interpolations": []}
 
+        for prompt in prompts:
+            tree = parser.parse(bytes(prompt, "utf-8"))
+            strings, identifiers, interpolations = parse_tree(tree)
+
+            # Do we need this?
+            # map(lambda x: re.sub(r"\{[^\"]*\"([^\"]*)\"[^}]*\}", r"\1", x), strings)
+            strings_found += len(strings)
+            data[repo]["strings"].extend(strings)
+            data[repo]["identifiers"].extend(identifiers)
+            data[repo]["interpolations"].extend(interpolations)
+            unique_strings.update(strings)
+
+    print("Found", prompt_count, "prompts in", filename)
+    print("Found", strings_found, "strings in", filename)
+    print("Found", len(unique_strings), "unique strings in", filename)
     filename = os.path.splitext(os.path.basename(filename))[0]
     with open(f"separated-{filename}.json", "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
@@ -68,6 +79,7 @@ def parse_metadata_file(filename):
         clean_data[key] = []
         for _, prompts in value.items():
             for prompt in prompts:
+                prompt = re.sub(r"\{[^\"]*\"[^\"]*\"[^}]*\}", prompt)
                 tree = parser.parse(bytes(prompt, "utf-8"))
                 strings, identifiers, interpolations = parse_tree(tree)
                 data[key][prompt] = {
@@ -78,7 +90,7 @@ def parse_metadata_file(filename):
                 clean_data[key].extend(strings)
 
     filename = os.path.splitext(os.path.basename(filename))[0]
-    with open(f"separated-{filename}.json", "w", encoding="utf-8") as f:
+    with open(f"xseparated-{filename}.json", "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
 
     with open(f"clean-{filename}.json", "w", encoding="utf-8") as f:
@@ -86,17 +98,19 @@ def parse_metadata_file(filename):
 
 
 if __name__ == "__main__":
-    parse_prompts("chat-completions.txt")
-    parse_prompts("chat-completions-beta.txt")
+    # parse_prompts("chat-completions.txt")
+    parse_prompts("grouped-used_in_openai_call_sub.json")
 
-    parse_prompts("langchain-prompts.txt")
-    parse_prompts("langchain-prompts-beta.txt")
-    parse_prompts("cohere-prompts.txt")
-    parse_prompts("cohere-prompts-beta.txt")
+    # parse_prompts("langchain-prompts.json")
+    parse_prompts("grouped-used_in_langchain_llm_call_sub.json")
 
-    # parse_prompts("langchain-tools.txt")
-    # parse_prompts("langchain-tools-class.txt")
+    # parse_prompts("cohere-prompts.json")
+    parse_prompts("grouped-used_chat_function_sub.json")
 
-    # parse_prompts("prompt_or_template_strings.txt")
+    parse_prompts("grouped-used_langchain_tool_class.json")
+    parse_prompts("grouped-used_langchain_tool.json")
+
+    parse_prompts("grouped-used_prompt_or_template_name.json")
+
     # parse_metadata_file("reader_prompt_metadata.json")
     # parse_metadata_file("reader_prompt_metadata_plus.json")

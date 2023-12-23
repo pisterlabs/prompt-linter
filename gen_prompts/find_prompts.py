@@ -21,12 +21,12 @@ os.makedirs(RUN_ID, exist_ok=True)
 
 def process_chunk(filenames):
     detector = PromptDetector()
-    # detector.add_heuristic(used_langchain_tool_class)
-    # detector.add_heuristic(used_langchain_tool)
+    detector.add_heuristic(used_langchain_tool_class)
+    detector.add_heuristic(used_langchain_tool)
     detector.add_heuristic(used_in_langchain_llm_call)
     detector.add_heuristic(used_in_openai_call)
     detector.add_heuristic(used_chat_function)
-    # detector.add_heuristic(used_prompt_or_template_name)
+    detector.add_heuristic(used_prompt_or_template_name)
     # detector.add_heuristic(new_line_in_string)
     # detector.add_heuristic(all_strings)
 
