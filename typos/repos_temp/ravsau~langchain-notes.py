@@ -1,3 +1,0 @@
-"""Question: {question}
-
-Answer: """
