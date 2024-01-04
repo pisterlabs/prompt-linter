@@ -5,15 +5,19 @@ username = utils.get_github_credentials()["username"]  # Replace with your own u
 password = utils.get_github_credentials()["password"]  # Replace with your own password.
 library = "anthropic"  # Replace with the library you want to search for
 
-characters = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "_", "a", "b", "c", "d", "e", "f", "g", "h", "i",
-              "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
-two_char_combinations = [f"{char1}{char2}" for char1 in characters for char2 in characters]
-charCombo_to_results = {}
+def get_repo_name(url):
+    url_split = url.split("/")
+    # Getting repo name
+    repo_name = f"/".join(url_split[3:5])
+    return repo_name
 
 if __name__ == "__main__":
+    # First pass, get list of repository names
+    repo_to_results = {}
+
     with sync_playwright() as p:
         # You can pick your browser of choice: chromium, firefox, webkit
-        browser = p.chromium.launch(headless=True)  # Set headless=False to watch the magic happen!
+        browser = p.chromium.launch(headless=False)  # Set headless=False to watch the magic happen!
         page = browser.new_page()
 
         # Navigate to our starting point
@@ -22,14 +26,16 @@ if __name__ == "__main__":
         page.fill('#password', password)  # Typing into the password field
         page.press('#password', 'Enter')  # Submitting the form by pressing "Enter"
 
-        # LOGIN Manually  -  Waiting for authentication (10 seconds)
-        page.wait_for_timeout(10000)
+        # LOGIN Manually  -  Waiting for authentication (2 seconds)
+        page.wait_for_timeout(2000)
 
-        # Loop through all the two character combinations
-        for charCombo in two_char_combinations:
+        stil_searching = True
+        URL = f"-repo%3Apisterlabs%2Fprompt-linter"
+        while stil_searching:
+            # Loop through all the three character combinations
             for i in range(1, 6):
                 # Go to Code Search
-                page.goto(f'https://github.com/search?q=%22from+{library}%22+OR+%22import+{library}%22+language%3Apython+path%3A{charCombo}*+-repo%3Apisterlabs%2Fprompt-linter&type=code&ref=advsearch&p={i}')
+                page.goto(f'https://github.com/search?q=%22from+{library}%22+OR+%22import+{library}%22+language%3Apython+{URL}&type=code&ref=advsearch&p={i}')
 
                 # Keep waiting while we are still rate limited
                 wait_count = 90
@@ -37,7 +43,7 @@ if __name__ == "__main__":
                     print("##################################################")
                     text = page.eval_on_selector("body", "elem => elem.innerText")
                     print(f"{text}\n")
-                    print(f"Still rate limited. Waiting {wait_count} second.")
+                    print(f"Still rate limited. Waiting {wait_count} seconds.")
                     print("##################################################")
                     page.wait_for_timeout(wait_count * 1000)  # Wait for wait_count seconds
                     # Reload
@@ -50,9 +56,11 @@ if __name__ == "__main__":
                         print("##################################################")
                         print("Search is failing.")
                         print("##################################################")
+                        # Wait for 2 minutes
+                        time.sleep(120)
                         # for playing audio.wav file
                         pygame.mixer.init()
-                        pygame.mixer.music.load("alarm.wav")
+                        pygame.mixer.music.load("../scraping/alarm.wav")
                         # Keep playing the sound in a loop
                         while True:
                             time.sleep(1)
@@ -70,30 +78,33 @@ if __name__ == "__main__":
                 # Now, let's find those sneaky little hrefs
                 hrefs = page.eval_on_selector_all('.SAskR', 'elements => elements.map(e => e.href)')
 
-                # Storing the results
-                charCombo_to_results[charCombo] = charCombo_to_results.get(charCombo, {})
-                charCombo_to_results[charCombo]["num_results"] = num_results
-                charCombo_to_results[charCombo]["hrefs"] = charCombo_to_results[charCombo].get("hrefs", []) + hrefs
+                # Storing results
+                for href in hrefs:
+                    repo_name = get_repo_name(href)
+                    if href not in repo_to_results:
+                        repo_to_results[repo_name] = []
+                        URL += f"+-repo%3A{repo_name}"
+                    repo_to_results[repo_name].append(href)
 
                 if len(hrefs) == 0:
-                    print("No results found. Exiting.")
+                    if i == 1:
+                        stil_searching = False
+                    print("Results remaining:", num_results)
+                    print(repo_to_results)
                     break
-                
-                # Print out the results
-                print(f"charCombo: {charCombo}; Total: {num_results}; Extracted: {len(charCombo_to_results[charCombo]['hrefs'])} files; Page: {i};")
-
+            
         # Close the browser
         browser.close()
 
     # Save the results
     with open(f"results_{library}.json", "w") as f:
-        json.dump(charCombo_to_results, f)
+        json.dump(repo_to_results, f)
 
     print("Done!")
 
     # for playing audio.wav file
     pygame.mixer.init()
-    pygame.mixer.music.load("alarm.wav")
+    pygame.mixer.music.load("../scraping/alarm.wav")
     # Keep playing the sound in a loop
     while True:
         time.sleep(1)
