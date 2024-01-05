@@ -4,7 +4,7 @@ from itertools import product
 
 username = utils.get_github_credentials()["username"]  # Replace with your own username
 password = utils.get_github_credentials()["password"]  # Replace with your own password.
-library = "cohere"  # Replace with the library you want to search for
+library = "langchain"  # Replace with the library you want to search for
 
 CHARACTERS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "_", "-", "a", "b", "c", "d", "e", "f", "g", "h", "i",
               "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
@@ -88,10 +88,10 @@ if __name__ == "__main__":
 
                 # If the number of results for this charCombo exceeds the pagination limit (5 page, 20 per page),
                 # then we skip this charCombo, and add the cartesian product of this charCombo with all characters.
-                if num_results > 100 and len(charCombo) < 5:
+                if num_results > 100 and len(charCombo) < 10:
                     print(f"Skipping {charCombo} as it has {num_results} results.")
                     charCombo_to_results["~remaining_combinations~"] += ["".join(pair) for pair in product([charCombo], CHARACTERS)]
-                    break
+                    num_results = 100
 
                 # Now, let's find those sneaky little hrefs
                 hrefs = page.eval_on_selector_all('.SAskR', 'elements => elements.map(e => e.href)')
