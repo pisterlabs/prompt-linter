@@ -1,4 +1,4 @@
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
 import json, time, pygame, utils, os
 from itertools import product
 
@@ -32,6 +32,7 @@ if __name__ == "__main__":
         # You can pick your browser of choice: chromium, firefox, webkit
         browser = p.chromium.launch(headless=True)  # Set headless=False to watch the magic happen!
         page = browser.new_page()
+        page.set_default_timeout(60000)  # Wait at most 1 minutes for a page to load
 
         # Navigate to our starting point
         page.goto('https://www.github.com/login', wait_until='networkidle')
@@ -46,9 +47,11 @@ if __name__ == "__main__":
         while len(charCombo_to_results["~remaining_combinations~"]) > 0:
             charCombo = charCombo_to_results["~remaining_combinations~"].pop(-1)
             for i in range(1, 6):
-                # Go to Code Search
-                page.goto(f'https://github.com/search?q=%22from+{library}%22+OR+%22import+{library}%22+language%3Apython+path%3A{charCombo}*+-repo%3Apisterlabs%2Fprompt-linter&type=code&ref=advsearch&p={i}')
-                page.set_default_timeout(600000)  # Wait at most 10 minutes for a page to load
+                try:
+                    # Go to Code Search
+                    page.goto(f'https://github.com/search?q=%22from+{library}%22+OR+%22import+{library}%22+language%3Apython+path%3A{charCombo}*+-repo%3Apisterlabs%2Fprompt-linter&type=code&ref=advsearch&p={i}')
+                except PlaywrightTimeoutError:
+                    page.reload()
                 # Keep waiting while we are still rate limited
                 wait_count = 90
                 while page.is_visible("#suggestions"):
